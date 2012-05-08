@@ -11,8 +11,8 @@ import net.liftweb.http.js.jquery.{ JqJsCmds }
 import net.liftweb.json.JsonDSL._
 
 import learn.model._
+import learn.web.Y
 import learn.service._
-import learn.tool._
 
 object AccountSnippet {
   private object reqAccount extends RequestVar[Box[AccountRecord]](findRecord)
@@ -39,13 +39,13 @@ object AccountSnippet {
   def sidebar: NodeSeq = {
     def sidebarLi(id: String, text: String, locationHash: String, template: NodeSeq) =
       <li>{
-        HtmlTools.ajaxLink(text, Full("#" + locationHash), () => {
+        Y.ajaxA(text, Full("#" + locationHash), () => {
           JsCmds.SetHtml("yj-container-main", template) &
             JE.JsRaw("window.location.hash='%s'" format locationHash).cmd
         }, "id" -> id)
       }</li>
 
-    HtmlTools.template("account/sidebar").map { nodeSeq =>
+    Y.template("account/sidebar").map { nodeSeq =>
       val links = sidebarLi("yj-a-temp1", "Temp1", "href=temp1", temp1) ++
         sidebarLi("yj-a-temp2", "Temp2", "href=temp2", temp2) ++
         sidebarLi("yj-a-edit", "编辑", "href=edit", edit) ++
@@ -55,22 +55,22 @@ object AccountSnippet {
     } openOr Text("模板: account/sidebar 未找到")
   }
 
-  private def index: NodeSeq = HtmlTools.template("account/index").map { nodeSeq =>
+  private def index: NodeSeq = Y.template("account/index").map { nodeSeq =>
     val cssSel =
       "data-yj=username" #> SessionManager.theAccount.open_!.username
 
     cssSel(nodeSeq)
   } openOr Text("模板: account/index 未找到")
 
-  private def temp1: NodeSeq = HtmlTools.template("account/temp1").map { nodeSeq =>
+  private def temp1: NodeSeq = Y.template("account/temp1").map { nodeSeq =>
     nodeSeq
   } openOr Text("模板: account/temp1 未找到")
 
-  private def temp2: NodeSeq = HtmlTools.template("account/temp2").map { nodeSeq =>
+  private def temp2: NodeSeq = Y.template("account/temp2").map { nodeSeq =>
     nodeSeq
   } openOr Text("模板: account/temp2 未找到")
 
-  private def edit: NodeSeq = HtmlTools.template("account/edit").map { nodeSeq =>
+  private def edit: NodeSeq = Y.template("account/edit").map { nodeSeq =>
     val cssSel = reqAccount.is match {
       case Failure(msg, _, _) =>
         "*" #> msg
@@ -84,10 +84,14 @@ object AccountSnippet {
     SHtml.ajaxForm(cssSel(nodeSeq))
   } openOr Text("模板: account/edit 未找到")
 
+
+  /**
+   * TODO 文件上传的Ajax功能还没实现
+   */
   private object reqEmail extends RequestVar[EmailContent](EmailContent.create)
   private object reqUpload extends RequestVar[Box[FileParamHolder]](Empty)
   private def sendEmail: NodeSeq = {
-    HtmlTools.template("account/send_email").map { nodeSeq =>
+    Y.template("account/send_email").map { nodeSeq =>
       val cssSel = "@hostName" #> SHtml.text("smtp.qq.com", reqEmail.is.hostName = _) &
         "@smtpPort" #> SHtml.text("465", v => reqEmail.is.smtpPort = asInt(v).openOr(0)) &
         "@username" #> SHtml.text("yang.xunjing", reqEmail.is.username = _) &

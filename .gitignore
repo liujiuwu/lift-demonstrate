@@ -1,6 +1,15 @@
 *.class
 *.log
 
+*~
+
+.DS_Store
+.ensime
+.classpath
+.project
+.settings
+.target/
+
 # sbt specific
 dist/*
 target/

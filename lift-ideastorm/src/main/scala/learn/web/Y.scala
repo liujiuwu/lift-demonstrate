@@ -45,11 +45,11 @@ object Y {
     resource(name)
   }
 
-  def a(text: String, func: () => JsCmd, attrs: ElemAttr*): Elem = ajaxLink(text, Empty, func, attrs: _*)
+  def ajaxA(text: String, func: () => JsCmd, attrs: ElemAttr*): Elem = ajaxA(text, Empty, func, attrs: _*)
 
-  def a(text: String, href: Box[String], func: () => JsCmd, attrs: ElemAttr*): Elem = ajaxLink(Text(text), href, func, attrs: _*)
+  def ajaxA(text: String, href: Box[String], func: () => JsCmd, attrs: ElemAttr*): Elem = ajaxA(Text(text), href, func, attrs: _*)
 
-  def a(text: NodeSeq, href: Box[String], func: () => JsCmd, attrs: ElemAttr*): Elem = {
+  def ajaxA(text: NodeSeq, href: Box[String], func: () => JsCmd, attrs: ElemAttr*): Elem = {
     val elem = S.fmapFunc(S.contextFuncBuilder(func)) { name =>
       <a onclick={ SHtml.makeAjaxCall(JE.Str(name + "=true")).toJsCmd + "; return false;" }>{ text }</a>
     }
