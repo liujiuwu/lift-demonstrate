@@ -1,14 +1,16 @@
 *.class
 *.log
+.*.swp
 
 *~
 
-.DS_Store
-.ensime
-.classpath
-.project
-.settings
-.target/
+#.DS_Store
+#.ensime
+#.classpath
+#.project
+#.settings
+#.target/
+.*
 
 # sbt specific
 dist/*

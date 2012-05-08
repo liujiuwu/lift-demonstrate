@@ -49,6 +49,7 @@ libraryDependencies ++= Seq(
 
 // Customize java lib
 libraryDependencies ++= Seq(
+  "org.clapper" %% "markwrap" % "0.5.4",
   "org.bouncycastle" % "bcprov-ext-jdk15on" % "1.47",
   "org.apache.commons" % "commons-lang3" % "3.1",
   "commons-io" % "commons-io" % "2.3",
