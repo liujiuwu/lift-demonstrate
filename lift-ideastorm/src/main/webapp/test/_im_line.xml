@@ -1,0 +1,9 @@
+<li>
+  <div>
+    <span name="who">#Who#</span>
+    <span name="when">#yyyy-MM-dd HH:mm:ss#</span>
+  </div>
+  <div>
+    <i><span name="body">#My Message#</span></i>
+  </div>
+</li>

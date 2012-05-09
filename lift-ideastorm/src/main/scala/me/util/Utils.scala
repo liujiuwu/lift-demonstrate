@@ -2,16 +2,24 @@ package me.yangbajing
 package util
 
 import java.security.MessageDigest
+import java.util.Date
+import java.text.SimpleDateFormat
 import org.bouncycastle.util.encoders.Hex
 
 object Utils extends TryUsingResources with Implicitly {
 
+  val dateIsoWeak = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E")
+  val dateIso = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 }
 
 sealed trait Implicitly {
   implicit def byteArray2String(data: Array[Byte]) = new ByteArray2String(data)
 
   implicit def option2OptionRich[T](option: Option[T]) = new OptionRich(option)
+}
+
+sealed class Date2String(date: Date) {
+  def toISOWeak = Utils.dateIsoWeak.format(date)
 }
 
 sealed class ByteArray2String(data: Array[Byte]) {

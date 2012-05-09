@@ -34,4 +34,5 @@ object SessionManager extends net.liftweb.common.Loggable {
       theAccount(Empty)
     Full(RedirectResponse("/session/login"))
   }
+
 }

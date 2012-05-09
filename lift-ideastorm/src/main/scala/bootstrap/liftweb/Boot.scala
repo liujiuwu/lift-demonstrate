@@ -16,6 +16,7 @@ class Boot {
 
     configureSiteMap()
     configureMongoDB()
+    configureUnloadHook()
   }
 
   private def configureMongoDB() {
@@ -29,10 +30,15 @@ class Boot {
       Menu("index", "首页") / "index" >> accountAccess,
       Menu("account", "账户") / "account" >> accountAccess,
       Menu("test", "Test") / "test" / ** >> accountAccess,
-      Menu("session", "会话") / "session" / "index" submenus (
+      Menu("session", "会话") / "session" / "inTryUsingResourcesdex" submenus (
         Menu("session-login", "登陆") / "session" / "login",
+        Menu("session-register", "注册") / "session" / "register",
         Menu("session-logout", "退出") / "session" / "logout" >> accountLogout))
 
     LiftRules.setSiteMap(siteMap)
+  }
+
+  private def configureUnloadHook() {
+    LiftRules.unloadHooks.append(() => learn.service.IMSystem.shutdown())
   }
 }
