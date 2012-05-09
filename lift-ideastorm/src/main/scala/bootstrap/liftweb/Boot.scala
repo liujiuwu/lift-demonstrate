@@ -28,7 +28,7 @@ class Boot {
     val siteMap = SiteMap(
       Menu("index", "首页") / "index" >> accountAccess,
       Menu("account", "账户") / "account" >> accountAccess,
-      Menu("model", "模型") / "model" / ** >> accountAccess,
+      Menu("test", "Test") / "test" / ** >> accountAccess,
       Menu("session", "会话") / "session" / "index" submenus (
         Menu("session-login", "登陆") / "session" / "login",
         Menu("session-logout", "退出") / "session" / "logout" >> accountLogout))

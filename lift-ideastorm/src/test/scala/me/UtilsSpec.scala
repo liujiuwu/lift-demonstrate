@@ -6,7 +6,7 @@ import java.io._
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
-import me.yangbajing.util.Utils._
+import Utils._
 
 class UtilsSpec extends FunSuite with ShouldMatchers {
 

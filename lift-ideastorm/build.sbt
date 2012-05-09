@@ -34,6 +34,7 @@ libraryDependencies ++= {
   val liftVersion = "2.4" // Put the current/latest lift version here
   Seq(
     "net.liftweb" %% "lift-webkit" % liftVersion % "compile->default",
+    "net.liftweb" %% "lift-textile" % liftVersion % "compile->default",
     "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile->default"
     )
 }
