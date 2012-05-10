@@ -3,7 +3,7 @@ package learn.comet
 import scala.xml.{ NodeSeq, Text }
 
 import net.liftweb.common.{ Box, Full, Empty, Failure }
-import net.liftweb.http.{ SHtml, S, CometActor }
+import net.liftweb.http.{ SHtml, S, CometActor, RequestVar }
 import net.liftweb.actor.{ LiftActor }
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.{ JE, JsCmds }
@@ -18,15 +18,20 @@ import SessionManager.theAccount
  * SiteMap中已进行了Session判断，这里当可安全的open_! theAccount
  */
 class IMComet extends CometActor { liftComet =>
+  private object reqMsg extends RequestVar[String]("")
 
   override def render = {
     "@username" #> theAccount.open_!.username &
-      "@sendMsg" #> SHtml.ajaxTextarea("", msg => {
-        val c = MessageLine(liftComet, theAccount.is.open_!.username, Text(msg), timeNow)
-        IMSystem.main ! c
-//        appendHtml(c)
-	Noop
-      })
+      "#send" #> SHtml.ajaxForm(
+        SHtml.textarea("", reqMsg(_)) ++
+          <button>发送</button> ++
+          SHtml.hidden(() => if (reqMsg.is != "") {
+            val c = MessageLine(liftComet, theAccount.is.open_!.username, Text(reqMsg.is), timeNow)
+            IMSystem.main ! c
+            // appendHtml(c)
+            Noop
+          } else
+            Noop))
   }
 
   override def lowPriority = {

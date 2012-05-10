@@ -57,7 +57,7 @@ libraryDependencies ++= Seq(
   "commons-codec" % "commons-codec" % "1.6",
   "org.apache.commons" % "commons-email" % "1.2",
   "org.apache.httpcomponents" % "httpclient" % "4.1.3",
-  "io.netty" % "netty" % "3.4.2.Final",
+  "io.netty" % "netty" % "3.4.4.Final",
   "org.slf4j" % "slf4j-api" % "1.6.4",
   "ch.qos.logback" % "logback-classic" % "1.0.2",
   "mysql" % "mysql-connector-java" % "5.1.20",
