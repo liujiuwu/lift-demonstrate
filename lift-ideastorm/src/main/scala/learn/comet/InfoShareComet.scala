@@ -17,7 +17,7 @@ import SessionManager.theAccount
 /**
  * SiteMap中已进行了Session判断，这里当可安全的open_! theAccount
  */
-class IMComet extends CometActor { liftComet =>
+class InfoShareComet extends CometActor { liftComet =>
   private object reqMsg extends RequestVar[String]("")
 
   override def render = {
