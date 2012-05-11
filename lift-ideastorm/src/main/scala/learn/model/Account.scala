@@ -47,9 +47,14 @@ object Account {
       new Account(record)
     }
   }
+
+  def find(accountId: String): Box[Account] = AccountRecord.find(accountId).map(new Account(_))
+
+  def findAll: List[Account] = AccountRecord.findAll.map(new Account(_))
 }
 
 import org.apache.commons.codec.digest.DigestUtils
+import org.bson.types.ObjectId
 
 class Account private (record: AccountRecord, var remember: Boolean = false) {
   def is = record
@@ -71,6 +76,9 @@ class Account private (record: AccountRecord, var remember: Boolean = false) {
     record.save
     this
   }
+
+  val id: String = record._id.is.toString
+  val _id: ObjectId = record._id.is
 
   def username: String = record.username.is
   def username_(u: String) {

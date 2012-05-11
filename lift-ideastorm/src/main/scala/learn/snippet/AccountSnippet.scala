@@ -14,7 +14,7 @@ import learn.model._
 import learn.web.Y
 import learn.service._
 
-object AccountSnippet {
+class AccountSnippet {
   private object reqAccount extends RequestVar[Box[AccountRecord]](findRecord)
   private object reqHref extends RequestVar[Box[String]](findReqHref)
 
@@ -23,14 +23,14 @@ object AccountSnippet {
 
     "#yj-sidebar *" #> sidebar &
       "#yj-container-main *" #> reqHref.is.dmap(index) {
-        case "temp1" =>
+/*        case "temp1" =>
           temp1
         case "temp2" =>
           temp2
         case "edit" =>
           edit
         case "send_mail" =>
-          sendEmail
+          sendEmail */
         case _ =>
           index
       }
