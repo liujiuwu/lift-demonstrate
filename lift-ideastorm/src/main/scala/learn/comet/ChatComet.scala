@@ -13,11 +13,13 @@ import net.liftweb.http.js.jquery.JqJsCmds.{ AppendHtml }
 import learn.web.Y
 import learn.service.{ IMSystem, MessageLine, MessageLines, MessageRegisterListener, MessageRemoveListener, SessionManager }
 import SessionManager.theAccount
+import learn.model.Account
 
 /**
  * SiteMap中已进行了Session判断，这里当可安全的open_! theAccount
  */
 class ChatComet extends CometActor { liftComet =>
+  private val account = theAccount.is.open_!
   private object reqMsg extends RequestVar[String]("")
 
   override def render = {
@@ -26,7 +28,7 @@ class ChatComet extends CometActor { liftComet =>
         SHtml.textarea("", reqMsg(_)) ++
           <button>发送</button> ++
           SHtml.hidden(() => if (reqMsg.is != "") {
-            val c = MessageLine(liftComet, theAccount.is.open_!.username, Text(reqMsg.is), timeNow)
+            val c = MessageLine(liftComet, account, Text(reqMsg.is), timeNow)
             IMSystem.main ! c
             // appendHtml(c)
             Noop
@@ -40,11 +42,11 @@ class ChatComet extends CometActor { liftComet =>
   }
 
   override def localSetup {
-    IMSystem.main ! MessageRegisterListener(this, theAccount.is.open_!.username)
+    IMSystem.main ! MessageRegisterListener(this, account)
   }
 
   override def localShutdown {
-    IMSystem.main ! MessageRemoveListener(this)
+    IMSystem.main ! MessageRemoveListener(this, account)
   }
 
   private def appendHtml(lines: MessageLine*) = {
@@ -54,7 +56,7 @@ class ChatComet extends CometActor { liftComet =>
   private def line(line: MessageLine*) = {
     val cssSel =
       "li" #> line.map { c =>
-        "name=who" #> c.user &
+        "name=who" #> c.account.username &
           "name=when" #> hourFormat(c.when) &
           "name=body" #> c.msg
       }

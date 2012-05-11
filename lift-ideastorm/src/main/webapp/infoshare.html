@@ -1,29 +1,19 @@
-<div class="container-fluid lift:surround?with=clear;at=content">
+<div class="container-fluid lift:surround?with=infoshare;at=content">
   <div class="row-fluid lift:comet?type=InfoShareComet">
 
     <div class="span2">
-      #Topic list#
+      <ul name="accountList">#Account List#</ul>
     </div>
 
-    <div class="span8">
-      <div class="page-header">
-	<h1>Info Share IM Platform</h1>
-      </div>
-      
-      <div>
-	<div>
-	  <ul id="main_message_window">
-	    <!-- Message content -->
-	  </ul>
-	</div>
-	<div>
-	  <div id="send" />
-	</div>
-      </div>
-    </div>
+    <div class="span10">
+      <h1>Info Share IM Platform</h1>
 
-    <div class="span2">
-      #Account list#
+      <div class="tabbable">
+	<ul class="nav nav-tabs" id="account_tabs"></ul>
+
+	<div class="tab-content" id="tab_content">
+	</div>
+      </div>
     </div>
 
   </div>

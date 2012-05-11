@@ -11,27 +11,22 @@ import JsCmds.Noop
 import net.liftweb.http.js.jquery.JqJsCmds.{ AppendHtml }
 
 import learn.web.Y
-import learn.service.{ IMSystem, MessageLine, MessageLines, MessageRegisterListener, MessageRemoveListener, SessionManager }
+import learn.service.{ IMSystem, InfoShareHelpers, MessageLine, MessageLines, MessageRegisterListener, MessageRemoveListener, SessionManager }
 import SessionManager.theAccount
+import learn.model.Account
 
 /**
  * SiteMap中已进行了Session判断，这里当可安全的open_! theAccount
  */
 class InfoShareComet extends CometActor { liftComet =>
+
+  private val account = theAccount.is.open_!
+  private val helper = new InfoShareHelpers(liftComet)
+
   private object reqMsg extends RequestVar[String]("")
 
   override def render = {
-    "@username" #> theAccount.open_!.username &
-      "#send" #> SHtml.ajaxForm(
-        SHtml.textarea("", reqMsg(_)) ++
-          <button>发送</button> ++
-          SHtml.hidden(() => if (reqMsg.is != "") {
-            val c = MessageLine(liftComet, theAccount.is.open_!.username, Text(reqMsg.is), timeNow)
-            IMSystem.main ! c
-            // appendHtml(c)
-            Noop
-          } else
-            Noop))
+    "@accountList" #> helper.accountList
   }
 
   override def lowPriority = {
@@ -40,24 +35,24 @@ class InfoShareComet extends CometActor { liftComet =>
   }
 
   override def localSetup {
-    IMSystem.main ! MessageRegisterListener(this, theAccount.is.open_!.username)
+    IMSystem.main ! MessageRegisterListener(this, account)
   }
 
   override def localShutdown {
-    IMSystem.main ! MessageRemoveListener(this)
+    IMSystem.main ! MessageRemoveListener(this, account)
   }
 
   private def appendHtml(lines: MessageLine*) = {
-    AppendHtml("main_message_window", line(lines: _*))
+    lines.map(line => AppendHtml("msg_window_" + line.account.id, _line(line))).foldLeft(Noop)(_ & _)
   }
 
-  private def line(line: MessageLine*) = {
+  private def _line(line: MessageLine) = {
     val cssSel =
-      "li" #> line.map { c =>
-        "name=who" #> c.user &
-          "name=when" #> hourFormat(c.when) &
-          "name=body" #> c.msg
-      }
+      "li" #> (
+        "name=who" #> line.account.username &
+        "name=when" #> hourFormat(line.when) &
+        "name=body" #> line.msg)
+
     cssSel(lineTemplate openOr defaultTemplate)
   }
 

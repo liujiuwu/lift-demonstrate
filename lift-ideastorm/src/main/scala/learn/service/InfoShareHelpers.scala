@@ -4,38 +4,39 @@ import scala.xml.{ NodeSeq, Text }
 
 import net.liftweb.common.{ Box, Full, Empty, Failure }
 import net.liftweb.util.Helpers._
-import net.liftweb.http.{ SHtml, RequestVar, SessionVar }
+import net.liftweb.http.{ SHtml, RequestVar, SessionVar, CometActor }
 import net.liftweb.http.js.{ JsCmds, JE }
+import JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds
 import JqJsCmds._
 
 import learn.web.Y
 import learn.model.Account
+import learn.service._
 
-object IMService {
+class InfoShareHelpers(liftComet: CometActor) {
   object Reqs {
     object reqMsg extends RequestVar[String]("")
-    object reqCurMsgAccountId extends RequestVar[List[String]](Nil)
   }
 
   import Reqs._
 
-  def accountList: NodeSeq = {
+  def accountList(): NodeSeq = {
+    val registerAccounts = IMSystem.registerAccounts.map(_.id)
     <ul class="nav nav-tabs nav-stacked">
       {
         Account.findAll.map { account =>
+          val state = if (registerAccounts.contains(account.id)) "在线" else "离线"
           <li>{
-            Y.ajaxA(account.username, Full("/infoshare?accountId=" + account.id), () => {
-              // TODO 向#account_tabs添加li项，并重设#msg_window_frame
-              if (reqCurMsgAccountId.is.contains(account.id)) {
-                JsCmds.Run("$('#account_tab_%s').addClass('active')" format account.id)
+            Y.ajaxA(account.username + " " + state, Full("/infoshare?accountId=" + account.id), () => {
+              if (registerAccounts.contains(account.id)) {
+                JsCmds.Run("$('#account_tab_%s').click();")
               } else {
 
                 val htmlId = "msg_window_" + account.id
 
-                reqCurMsgAccountId(account.id :: reqCurMsgAccountId.is)
-                AppendHtml("account_tabs", accountTabItem(account.id)) &
-                  JsCmds.SetHtml("msg_window_frame", msgWindow(account.id))
+                AppendHtml("account_tabs", accountTabItem(account)) &
+                  AppendHtml("tab_content", msgWindow(account))
               }
             })
           }</li>
@@ -44,62 +45,44 @@ object IMService {
     </ul>
   }
 
-  def msgWindow(accountId: String): NodeSeq = {
-    <div>
-      # 此处是聊天窗口啊!!!!!! #
+  def msgWindow(account: Account): NodeSeq = {
+    val sendArea =
+      <div>{ SHtml.textarea("", reqMsg(_), "style" -> "height:128px;", "class" -> "span8") }</div>
+      <div>{
+        SHtml.button("发送", () => (), "id" -> "smg_send_button") ++
+          SHtml.hidden(() => if (reqMsg.is != "") {
+            val c = MessageLine(liftComet, account, Text(reqMsg.is), timeNow)
+            IMSystem.main ! c
+            // appendHtml(c)
+            Noop
+          } else
+            Noop)
+      }</div>
+
+    //
+    <div class="tab-pane" id={ "msg_window_frame_" + account.id }>
+      <div>
+        <ul id={ "msg_window_" + account.id }>
+        </ul>
+      </div>
+      <div>
+        {
+          SHtml.ajaxForm(sendArea)
+        }
+        <span>{ account.username }</span>
+      </div>
     </div>
   }
 
-  def accountTabItem(accountId: String): NodeSeq = Account.find(accountId).dmap(NodeSeq.Empty) { account =>
+  def accountTabItem(account: Account): NodeSeq = {
     val cssSel =
-        "#account_tab_ [id]" #> "account_tab_%s".format(account.id) &
+      "#account_tab_ [id]" #> "account_tab_%s".format(account.id) &
         "@nickname" #> account.username
 
-    cssSel(dropdownNodeSeq)
+    cssSel(accountTabItemNode(account))
   }
 
-  val dropdownNodeSeq =
-    <li class="dropdown" id="account_tab_">
-      <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span name="nickname"/><b class="caret"></b></a>
-      <ul class="dropdown-menu">
-        <li><a href="#" data-yj="openMsg">发送即时消息</a></li>
-        <li><a href="#" data-yj="openEmail">发送电子邮件</a></li>
-        <li class="divider"></li>
-        <li><a href="#" data-yj="closeMsg">关闭</a></li>
-      </ul>
-    </li>
-
-  val navTabsNodeSeq = <ul class="nav nav-tabs">
-                         <li class="dropdown">
-                           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Dropdown <b class="caret"></b></a>
-                           <ul class="dropdown-menu">
-                             <li><a href="#">Action</a></li>
-                             <li><a href="#">Another action</a></li>
-                             <li><a href="#">Something else here</a></li>
-                             <li class="divider"></li>
-                             <li><a href="#">Separated link</a></li>
-                           </ul>
-                         </li>
-                         <li class="dropdown active">
-                           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Dropdown <b class="caret"></b></a>
-                           <ul class="dropdown-menu">
-                             <li><a href="#">Action</a></li>
-                             <li><a href="#">Another action</a></li>
-                             <li><a href="#">Something else here</a></li>
-                             <li class="divider"></li>
-                             <li><a href="#">Separated link</a></li>
-                           </ul>
-                         </li>
-                         <li class="dropdown">
-                           <a class="dropdown-toggle" data-toggle="dropdown" href="#">Dropdown <b class="caret"></b></a>
-                           <ul class="dropdown-menu">
-                             <li><a href="#">Action</a></li>
-                             <li><a href="#">Another action</a></li>
-                             <li><a href="#">Something else here</a></li>
-                             <li class="divider"></li>
-                             <li><a href="#">Separated link</a></li>
-                           </ul>
-                         </li>
-                       </ul>
+  private def accountTabItemNode(account: Account) =
+    <li><a href={ "#msg_window_frame_" + account.id } data-toggle="tab">{ account.username }</a></li>
 
 }

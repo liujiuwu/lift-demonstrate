@@ -56,6 +56,8 @@ object Account {
 import org.apache.commons.codec.digest.DigestUtils
 import org.bson.types.ObjectId
 
+case class CaseAccount(id: String, email: String, username: String, age: Int)
+
 class Account private (record: AccountRecord, var remember: Boolean = false) {
   def is = record
 
