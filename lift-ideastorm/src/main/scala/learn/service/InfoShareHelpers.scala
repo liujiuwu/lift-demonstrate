@@ -22,14 +22,14 @@ class InfoShareHelpers(liftComet: CometActor) {
   import Reqs._
 
   def accountList(): NodeSeq = {
-    val registerAccounts = IMSystem.registerAccounts.map(_.id)
+    val onlineAccountIds = ContextSystem.onlineAccountIds.toList
     <ul class="nav nav-tabs nav-stacked">
       {
         Account.findAll.map { account =>
-          val state = if (registerAccounts.contains(account.id)) "在线" else "离线"
+          val state = if (onlineAccountIds.contains(account.id)) "在线" else "离线"
           <li>{
             Y.ajaxA(account.username + " " + state, Full("/infoshare?accountId=" + account.id), () => {
-              if (registerAccounts.contains(account.id)) {
+              if (onlineAccountIds.contains(account.id)) {
                 JsCmds.Run("$('#account_tab_%s').click();")
               } else {
 
@@ -51,7 +51,7 @@ class InfoShareHelpers(liftComet: CometActor) {
       <div>{
         SHtml.button("发送", () => (), "id" -> "smg_send_button") ++
           SHtml.hidden(() => if (reqMsg.is != "") {
-            val c = MessageLine(liftComet, account, Text(reqMsg.is), timeNow)
+            val c = MessageLine(liftComet, account.id, Text(reqMsg.is), timeNow)
             IMSystem.main ! c
             // appendHtml(c)
             Noop

@@ -12,13 +12,15 @@ import net.liftweb.json.JsonDSL._
 
 import learn.web.Y
 import learn.service._
+import learn.model.Account
 
-import SessionManager.theAccount
+import SessionManager.theAccountId
 
 class SessionSnippet {
   def navCollapse: NodeSeq = {
-    val cssSel = theAccount.is match {
-      case Full(account) =>
+    val cssSel = theAccountId.is match {
+      case Full(accountId) =>
+	val account = Account.find(accountId).open_!
         "@username" #> account.username &
           ".dropdown-menu" #> <div>
                                 <li><a href="/session/logout">退出</a></li>
@@ -36,7 +38,7 @@ class SessionSnippet {
   private val _navCollapse =
     <div class="nav-collapse">
       <div class="btn-group pull-right">
-        <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#">
+        <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
           <span name="username">#用户名#</span>
           <span class="caret"></span>
         </a>

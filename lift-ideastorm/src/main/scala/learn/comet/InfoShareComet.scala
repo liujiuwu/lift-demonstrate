@@ -12,7 +12,7 @@ import net.liftweb.http.js.jquery.JqJsCmds.{ AppendHtml }
 
 import learn.web.Y
 import learn.service.{ IMSystem, InfoShareHelpers, MessageLine, MessageLines, MessageRegisterListener, MessageRemoveListener, SessionManager }
-import SessionManager.theAccount
+import SessionManager.theAccountId
 import learn.model.Account
 
 /**
@@ -20,7 +20,7 @@ import learn.model.Account
  */
 class InfoShareComet extends CometActor { liftComet =>
 
-  private val account = theAccount.is.open_!
+  private val account = theAccountId.is.open_!
   private val helper = new InfoShareHelpers(liftComet)
 
   private object reqMsg extends RequestVar[String]("")
@@ -43,13 +43,14 @@ class InfoShareComet extends CometActor { liftComet =>
   }
 
   private def appendHtml(lines: MessageLine*) = {
-    lines.map(line => AppendHtml("msg_window_" + line.account.id, _line(line))).foldLeft(Noop)(_ & _)
+    lines.map(line => AppendHtml("msg_window_" + line.accountId, _line(line))).foldLeft(Noop)(_ & _)
   }
 
   private def _line(line: MessageLine) = {
+    val account = Account.find(line.accountId).open_!
     val cssSel =
       "li" #> (
-        "name=who" #> line.account.username &
+        "name=who" #> account.username &
         "name=when" #> hourFormat(line.when) &
         "name=body" #> line.msg)
 

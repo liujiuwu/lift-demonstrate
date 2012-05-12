@@ -16,8 +16,8 @@ object LoginSnippet {
   private object remember extends RequestVar[Boolean](false)
 
   def render(nodeSeq: NodeSeq): NodeSeq = {
-    if (theAccount.isDefined) {
-      S.warning("用户: %s 您已经登陆" format theAccount.is.open_!.username)
+    if (theAccountId.is.isDefined) {
+      S.warning("用户: %s 您已经登陆" format Account.find(theAccountId.is.open_!).open_!.username)
       S.redirectTo("/account/index")
     }
 
@@ -28,7 +28,7 @@ object LoginSnippet {
         "@login" #> SHtml.submit("登陆", () => {
           Account(username.is, password.is) match {
             case Full(account) =>
-              saveSessionAndCookie(account, remember.is)
+              saveSessionAndCookie(account.id, remember.is)
               S.notice("用户登陆: %s, 欢迎您" format account.username)
               S.redirectTo("/index")
             case Failure(msg, _, _) =>
@@ -39,11 +39,5 @@ object LoginSnippet {
         })
 
     cssSel(nodeSeq)
-  }
-
-  private def saveSessionAndCookie(account: Account, remember: Boolean = false) {
-    theAccount(Full(account))
-    if (remember) S.addCookie(account.httpCookie)
-    else S.deleteCookie(Account.cookieName) // TODO 是否必要?
   }
 }

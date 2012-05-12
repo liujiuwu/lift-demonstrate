@@ -17,6 +17,7 @@ class Boot {
     configureSiteMap()
     configureMongoDB()
     configureUnloadHook()
+    new Setup().setup
   }
 
   private def configureMongoDB() {
@@ -40,6 +41,6 @@ class Boot {
   }
 
   private def configureUnloadHook() {
-    LiftRules.unloadHooks.append(() => learn.service.IMSystem.shutdown())
+    LiftRules.unloadHooks.append(() => learn.service.System.system.shutdown())
   }
 }

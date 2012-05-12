@@ -48,8 +48,14 @@ object Account {
     }
   }
 
-  def find(accountId: String): Box[Account] = AccountRecord.find(accountId).map(new Account(_))
+  def httpCookie(accountId: String): Box[HTTPCookie] = {
+    find(accountId).map(_.httpCookie)
+  }
 
+  /**
+   * 对于find 方法，可缓存
+   */
+  def find(accountId: String): Box[Account] = AccountRecord.find(accountId).map(new Account(_))
   def findAll: List[Account] = AccountRecord.findAll.map(new Account(_))
 }
 
@@ -96,4 +102,6 @@ class Account private (record: AccountRecord, var remember: Boolean = false) {
   def age_(a: Int) {
     record.age(a)
   }
+
+  override def toString() = "[id: %s, username: %s]" format (id, username)
 }

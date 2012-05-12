@@ -23,7 +23,7 @@ class AccountSnippet {
 
     "#yj-sidebar *" #> sidebar &
       "#yj-container-main *" #> reqHref.is.dmap(index) {
-/*        case "temp1" =>
+        /*        case "temp1" =>
           temp1
         case "temp2" =>
           temp2
@@ -56,8 +56,9 @@ class AccountSnippet {
   }
 
   private def index: NodeSeq = Y.template("account/index").map { nodeSeq =>
+    val account = Account.find(SessionManager.theAccountId.open_!).open_!
     val cssSel =
-      "data-yj=username" #> SessionManager.theAccount.open_!.username
+      "data-yj=username" #> account.username
 
     cssSel(nodeSeq)
   } openOr Text("模板: account/index 未找到")
@@ -84,7 +85,6 @@ class AccountSnippet {
     SHtml.ajaxForm(cssSel(nodeSeq))
   } openOr Text("模板: account/edit 未找到")
 
-
   /**
    * TODO 文件上传的Ajax功能还没实现
    */
@@ -104,7 +104,7 @@ class AccountSnippet {
         "@attachment" #> SHtml.fileUpload(v => reqUpload(Full(v))) // TODO Ajax的文件怎样上专?
       "#form_submit" #> (SHtml.hidden(() => {
         println("email: " + reqEmail.is)
-	println(reqUpload.is.open_!.toString)
+        println(reqUpload.is.open_!.toString)
         S notice MailService.send(reqEmail.is)
       }) ++ SHtml.button("发送", () => ()))
 
@@ -136,8 +136,8 @@ class AccountSnippet {
 
   private def findRecord: Box[AccountRecord] = {
     for (
-      username <- SessionManager.theAccount.is.map(_.username) ?~ "session不存在";
-      record <- AccountRecord.find("username" -> username) ?~ "用户:%s".format("不存在")
+      accountId <- SessionManager.theAccountId ?~ "session不存在";
+      record <- AccountRecord.find(accountId) ?~ "用户:%s".format("不存在")
     ) yield record
   }
 
