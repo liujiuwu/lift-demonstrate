@@ -8,13 +8,7 @@ import learn.model.Account
 
 object SessionManager extends net.liftweb.common.Loggable {
 
-  object theAccountId extends SessionVar[Box[String]](Empty) {
-
-    override def remove() {
-      is.foreach(ContextSystem.main ! AccountLogout(_)) // Box
-      super.remove()
-    }
-  }
+  object theAccountId extends SessionVar[Box[String]](Empty)
 
   def accountAccess = TestAccess { () =>
     theAccountId.is match {
@@ -37,7 +31,7 @@ object SessionManager extends net.liftweb.common.Loggable {
 
   def accountLogout = TestAccess { () =>
     if (theAccountId.is.isDefined) {
-      //theAccount(Empty)
+      ContextSystem.s.context ! AccountLogout(theAccountId.is.open_!)
       theAccountId.remove()
     }
     S.deleteCookie(Account.cookieName)
@@ -46,12 +40,13 @@ object SessionManager extends net.liftweb.common.Loggable {
 
   def saveSessionAndCookie(accountId: String, beReset: Boolean = false) {
     S.session.foreach(_.addSessionCleanup(_ => {
-      ContextSystem.main ! AccountLogin(accountId)
+      ContextSystem.s.context ! AccountLogout(accountId)
     }))
 
     theAccountId(Full(accountId))
 
-    ContextSystem.main ! AccountLogin(accountId)
+    ContextSystem.s.context ! AccountLogin(accountId)
+    println("ContextSystem.main ! AccountLogin(accountId)")
 
     if (beReset) {
       S.addCookie(Account.httpCookie(accountId).open_!) // 此处可安全打开

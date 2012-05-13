@@ -20,7 +20,7 @@ class SessionSnippet {
   def navCollapse: NodeSeq = {
     val cssSel = theAccountId.is match {
       case Full(accountId) =>
-	val account = Account.find(accountId).open_!
+        val account = Account.find(accountId).open_!
         "@username" #> account.username &
           ".dropdown-menu" #> <div>
                                 <li><a href="/session/logout">退出</a></li>
@@ -30,7 +30,8 @@ class SessionSnippet {
           ".dropdown-menu" #> <div>
                                 <li><a href="/session/login">登陆</a></li>
                                 <li><a href="/session/register">注册</a></li>
-                              </div>
+                              </div> &
+          ".dropdown-toggle [class]" #> "btn btn-info dropdown-toggle"
     }
     cssSel(_navCollapse)
   }
@@ -38,10 +39,10 @@ class SessionSnippet {
   private val _navCollapse =
     <div class="nav-collapse">
       <div class="btn-group pull-right">
-        <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
           <span name="username">#用户名#</span>
           <span class="caret"></span>
-        </a>
+        </button>
         <ul class="dropdown-menu">
         </ul>
       </div>

@@ -1,7 +1,7 @@
 package learn.model
 
 import net.liftweb.record.field._
-import net.liftweb.mongodb.record.field.MongoPasswordField
+import net.liftweb.mongodb.record.field.{ MongoPasswordField, JsonObjectField, ObjectIdField }
 import net.liftweb.mongodb.record.{
   MongoRecord,
   MongoMetaRecord,
@@ -29,6 +29,10 @@ class AccountRecord private () extends MongoRecord[AccountRecord]
 
   object createdAt extends DateTimeField(this)
   object updatedAt extends DateTimeField(this)
+
+  object unreadInfomationIds extends JsonObjectField[AccountRecord, JsonDataList](this, JsonDataList) {
+    def defaultValue = JsonDataList(Nil)
+  }
 
   override def save = {
     updatedAt(java.util.Calendar.getInstance(timeZone.isAsTimeZone))

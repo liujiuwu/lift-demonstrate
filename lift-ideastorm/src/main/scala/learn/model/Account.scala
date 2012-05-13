@@ -8,11 +8,11 @@ import net.liftweb.json.JsonDSL._
 object Account {
   val cookieName = "learn.mongodb"
 
-  def create(): Account = {
-    new Account(AccountRecord.createRecord)
+  def create(): AccountImpl = {
+    new AccountImpl(AccountRecord.createRecord)
   }
 
-  def apply(cookie: Box[HTTPCookie]): Box[Account] = {
+  def apply(cookie: Box[HTTPCookie]): Box[AccountImpl] = {
     def unpackToken(token: String): Box[(String, String)] = token.split(":").toList match {
       case username :: token :: Nil => Full(username -> token)
       case _ => Empty
@@ -28,12 +28,12 @@ object Account {
       record <- AccountRecord.find("username" -> new String(Helpers.base64Decode(username))) ?~ "用户不存在";
       _ <- tokenEq(record.token.is, token) ?~ "Token不匹配"
     ) yield {
-      new Account(record, true)
+      new AccountImpl(record, true)
     }
 
   }
 
-  def apply(username: String, password: String): Box[Account] = {
+  def apply(username: String, password: String): Box[AccountImpl] = {
     println("username: %s\npassword: %s" format (username, password))
 
     def passwordEq(record: AccountRecord) =
@@ -44,7 +44,7 @@ object Account {
       record <- AccountRecord.find("username" -> username) ?~ "用户不存在";
       _ <- passwordEq(record)
     ) yield {
-      new Account(record)
+      new AccountImpl(record)
     }
   }
 
@@ -55,18 +55,23 @@ object Account {
   /**
    * 对于find 方法，可缓存
    */
-  def find(accountId: String): Box[Account] = AccountRecord.find(accountId).map(new Account(_))
-  def findAll: List[Account] = AccountRecord.findAll.map(new Account(_))
+  def find(accountId: String): Box[AccountImpl] = AccountRecord.find(accountId).map(new AccountImpl(_))
+  def findByUsername(username: String): Box[AccountImpl] = AccountRecord.find("username" -> username).map(new AccountImpl(_))
+  def findAll: List[AccountImpl] = AccountRecord.findAll.map(new AccountImpl(_))
+
+  // 基于casbah的原子操作，避免每次都聚会整个文档
+  def addUnreadInfomationId(id: String*) {
+  }
+  def removeUnreadInfomationId(id: String*) {
+  }
 }
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.bson.types.ObjectId
 
-case class CaseAccount(id: String, email: String, username: String, age: Int)
+case class Account(id: String, email: String, username: String, age: Int, unreadInfomationIds: List[String])
 
-class Account private (record: AccountRecord, var remember: Boolean = false) {
-  def is = record
-
+class AccountImpl(record: AccountRecord, var remember: Boolean = false) {
   def httpCookie: HTTPCookie = {
     val maxAge = 60 * 60 * 24 * 14 // 保存两周
 
@@ -80,8 +85,22 @@ class Account private (record: AccountRecord, var remember: Boolean = false) {
     new HTTPCookie(Account.cookieName, Full(record.token.is), Empty, Full("/"), Full(maxAge), Empty, Empty)
   }
 
+  @throws(classOf[IllegalArgumentException])
   def save = {
+    if (AccountRecord.count("username" -> username) > 0)
+      throw new IllegalArgumentException("用户名: %s 已存在" format username)
+
     record.save
+    this
+  }
+
+  def immutable = {
+    Account(id, email, username, age, unreadInfomationIds)
+  }
+
+  def unreadInfomationIds: List[String] = record.unreadInfomationIds.is.list
+  def setUnreadInfomationIds(list: List[String]) = {
+    record.unreadInfomationIds(JsonDataList(list))
     this
   }
 
@@ -89,18 +108,21 @@ class Account private (record: AccountRecord, var remember: Boolean = false) {
   val _id: ObjectId = record._id.is
 
   def username: String = record.username.is
-  def username_(u: String) {
+  def setUsername(u: String) = {
     record.username(u)
+    this
   }
 
   def email: String = record.email.is
-  def email_(e: String) {
+  def setEmail(e: String) = {
     record.email(e)
+    this
   }
 
   def age: Int = record.age.is
-  def age_(a: Int) {
+  def setAge(a: Int) = {
     record.age(a)
+    this
   }
 
   override def toString() = "[id: %s, username: %s]" format (id, username)

@@ -6,6 +6,8 @@ import java.util.Date
 import java.text.SimpleDateFormat
 import org.bouncycastle.util.encoders.Hex
 
+import me.yangbajing._
+
 object Utils extends TryUsingResources with Implicitly {
 
   val dateIsoWeak = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E")
@@ -16,6 +18,17 @@ sealed trait Implicitly {
   implicit def byteArray2String(data: Array[Byte]) = new ByteArray2String(data)
 
   implicit def option2OptionRich[T](option: Option[T]) = new OptionRich(option)
+
+  implicit def tuple2ToKV[K, V](tuple2: Tuple2[K, V]) = new KV(tuple2._1, tuple2._2)
+
+  implicit def tuple3ToXYZ[X, Y, Z](tuple3: Tuple3[X, Y, Z]) = XYZ(tuple3._1, tuple3._2, tuple3._3)
+
+  implicit def tuple2RichApi[K, V](tuple2: Tuple2[K, V]) = new Tuple2RichApi(tuple2)
+}
+
+sealed class Tuple2RichApi[K, V](tuple2: Tuple2[K, V]) {
+  def k = tuple2._1
+  def v = tuple2._2
 }
 
 sealed class Date2String(date: Date) {

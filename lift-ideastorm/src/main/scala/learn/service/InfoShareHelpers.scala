@@ -35,8 +35,8 @@ class InfoShareHelpers(liftComet: CometActor) {
 
                 val htmlId = "msg_window_" + account.id
 
-                AppendHtml("account_tabs", accountTabItem(account)) &
-                  AppendHtml("tab_content", msgWindow(account))
+                AppendHtml("account_tabs", accountTabItem(account.immutable)) &
+                  AppendHtml("tab_content", msgWindow(account.immutable))
               }
             })
           }</li>
