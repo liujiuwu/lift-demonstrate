@@ -1,2 +1,2 @@
 SCRIPT_DIR=`dirname $0`
-java -Xmx512M -Dfile.encoding=UTF-8 -jar "$SCRIPT_DIR/sbt-launch-0.11.2.jar" $@
+java -Xmx1024M -Dfile.encoding=UTF-8 -jar "$SCRIPT_DIR/sbt-launch-0.11.2.jar" $@

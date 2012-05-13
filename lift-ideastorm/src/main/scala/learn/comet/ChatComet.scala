@@ -30,7 +30,7 @@ class ChatComet extends CometActor { liftComet =>
         SHtml.textarea("", reqMsg(_)) ++
           <button>发送</button> ++
           SHtml.hidden(() => if (reqMsg.is != "") {
-            val c = MessageLine(liftComet, account.id, Text(reqMsg.is), timeNow)
+            val c = MessageLine(liftComet, accountId, account.id, Text(reqMsg.is), timeNow)
             IMSystem.main ! c
             // appendHtml(c)
             Noop
@@ -58,7 +58,7 @@ class ChatComet extends CometActor { liftComet =>
   private def line(line: MessageLine*) = {
     val cssSel =
       "li" #> line.map { c =>
-        val account = Account.find(c.accountId).open_! // 此处可安全打开
+        val account = Account.find(c.fromId).open_! // 此处可安全打开
 
         "name=who" #> account.username &
           "name=when" #> hourFormat(c.when) &

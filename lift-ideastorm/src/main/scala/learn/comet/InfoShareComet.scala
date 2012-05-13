@@ -20,7 +20,7 @@ import learn.model.Account
  */
 class InfoShareComet extends CometActor { liftComet =>
 
-  private val account = theAccountId.is.open_!
+  private val accountId = theAccountId.is.open_!
   private val helper = new InfoShareHelpers(liftComet)
 
   private object reqMsg extends RequestVar[String]("")
@@ -30,44 +30,20 @@ class InfoShareComet extends CometActor { liftComet =>
   }
 
   override def lowPriority = {
-    case MessageLines(imActor, lines) =>
+    case a @ MessageLines(imActor, lines) =>
+      println("\nInfoShareComet: \n%s\n\n" format a)
       partialUpdate(appendHtml(lines: _*))
   }
 
   override def localSetup {
-    IMSystem.main ! MessageRegisterListener(this, account)
+    IMSystem.main ! MessageRegisterListener(this, accountId)
   }
 
   override def localShutdown {
-    IMSystem.main ! MessageRemoveListener(this, account)
+    IMSystem.main ! MessageRemoveListener(this, accountId)
   }
 
   private def appendHtml(lines: MessageLine*) = {
-    lines.map(line => AppendHtml("msg_window_" + line.accountId, _line(line))).foldLeft(Noop)(_ & _)
+    lines.map(line => AppendHtml("msg_window_" + line.fromId, helper.line(line))).foldLeft(Noop)(_ & _)
   }
-
-  private def _line(line: MessageLine) = {
-    val account = Account.find(line.accountId).open_!
-    val cssSel =
-      "li" #> (
-        "name=who" #> account.username &
-        "name=when" #> hourFormat(line.when) &
-        "name=body" #> line.msg)
-
-    cssSel(lineTemplate openOr defaultTemplate)
-  }
-
-  private lazy val lineTemplate: Box[NodeSeq] = Y.resource("/test/_im_line")
-
-  private val defaultTemplate: NodeSeq =
-    <li>
-      <div>
-        <span name="who"/>
-        <span name="when"/>
-      </div>
-      <div>
-        <i><span name="body"/></i>
-      </div>
-    </li>
-
 }

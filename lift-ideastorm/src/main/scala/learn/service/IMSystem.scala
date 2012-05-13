@@ -22,28 +22,31 @@ object IMSystem {
 
   def main = _main
 
-  var registerAccountIds: Set[String] = Set()
-
   class IMDispatcher extends Actor {
-    private var listeners: List[LiftActor] = Nil
     private var lines: List[MessageLine] = Nil
+    private var listenerMap: Map[String, LiftActor] = Map[String, LiftActor]()
 
     def receive = {
-      case line @ MessageLine(liftActor, account, msg, when) =>
-        lines = line :: lines.take(49)
-        listeners foreach (_ ! MessageLines(self, lines.head :: Nil))
+      case line @ MessageLine(fromLiftActor, fromId, toId, msg, when) =>
+        lines = line :: lines.take(200)
+
+        for (toComet <- listenerMap.get(toId)) {
+          toComet ! MessageLines(self, line :: Nil)
+          println("\nMessageLine: %s\n" format line)
+        }
 
       case MessageRegisterListener(liftActor, accountId) =>
-        listeners ::= liftActor
-        registerAccountIds += accountId
-        liftActor ! MessageLines(self, MessageLine(liftActor, accountId, Text("欢迎来到IM系统"), Helpers.timeNow) :: Nil)
-        liftActor ! MessageLines(self, lines take 15)
-	println("MessageRegisterListener liftaccount: %s, account: %s\n\n" format (liftActor, accountId))
+        listenerMap += accountId -> liftActor
+
+        liftActor ! MessageLines(self, MessageLine(liftActor, "systemId", accountId, Text("欢迎来到IM系统"), Helpers.timeNow) :: Nil)
+        liftActor ! MessageLines(self, lines.filter(_.toId == accountId).take(15))
+
+        println("MessageRegisterListener liftaccount: %s, account: %s\n\n" format (liftActor, accountId))
 
       case MessageRemoveListener(liftActor, accountId) =>
-        listeners = listeners.filterNot(_ eq liftActor)
-        registerAccountIds -= accountId
-	println("MessageRemoveListener liftaccount: %s, account: %s\n\n" format (liftActor, accountId))
+        listenerMap -= accountId
+
+        println("MessageRemoveListener liftaccount: %s, account: %s\n\n" format (liftActor, accountId))
 
     }
   }
@@ -51,7 +54,7 @@ object IMSystem {
 }
 
 // 从lift comet 过来的消息
-case class MessageLine(liftActor: LiftActor, accountId: String, msg: NodeSeq, when: Date)
+case class MessageLine(liftActor: LiftActor, fromId: String, toId: String, msg: NodeSeq, when: Date)
 
 case class MessageRegisterListener(liftActor: LiftActor, accountId: String)
 
