@@ -29,7 +29,7 @@ class Boot {
 
     val siteMap = SiteMap(
       Menu("index", "首页") / "index" >> accountAccess,
-      Menu("account", "账户") / "account" >> accountAccess,
+      Menu("single", "单页") / "single" >> accountAccess,
       Menu("test", "Test") / "test" / ** >> accountAccess,
       Menu("infoshare",  "Info Share") / "infoshare" >> accountAccess,
       Menu("session", "会话") / "session" / "inTryUsingResourcesdex" submenus (

@@ -14,17 +14,18 @@ import learn.model._
 import learn.web.Y
 import learn.service._
 
-class AccountSnippet {
+class SingleSnippet {
   private object reqAccount extends RequestVar[Box[AccountRecord]](findRecord)
   private object reqHref extends RequestVar[Box[String]](findReqHref)
 
   def render: CssSel = {
-    S.appendJs(hrefHash("yj-a-temp1" -> "temp1", "yj-a-temp2" -> "temp2", "yj-a-edit" -> "edit", "yj-a-send_email" -> "send_email"))
+    //    S.appendJs(hrefHash("yj-a-message" -> "message", "yj-a-temp2" -> "temp2", "yj-a-edit" -> "edit", "yj-a-send_email" -> "send_email"))
+    S.appendJs(ready)
 
     "#yj-sidebar *" #> sidebar &
       "#yj-container-main *" #> reqHref.is.dmap(index) {
-        /*        case "temp1" =>
-          temp1
+        /*        case "message" =>
+          message
         case "temp2" =>
           temp2
         case "edit" =>
@@ -45,33 +46,33 @@ class AccountSnippet {
         }, "id" -> id)
       }</li>
 
-    Y.template("account/sidebar").map { nodeSeq =>
-      val links = sidebarLi("yj-a-temp1", "Temp1", "href=temp1", temp1) ++
+    Y.template("single/sidebar").map { nodeSeq =>
+      val links = sidebarLi("yj-a-message", "Message", "href=message", message) ++
         sidebarLi("yj-a-temp2", "Temp2", "href=temp2", temp2) ++
         sidebarLi("yj-a-edit", "编辑", "href=edit", edit) ++
         sidebarLi("yj-a-send_email", "发送邮件", "href=send_email", sendEmail)
 
       (".nav *" #> links)(nodeSeq)
-    } openOr Text("模板: account/sidebar 未找到")
+    } openOr Text("模板: single/sidebar 未找到")
   }
 
-  private def index: NodeSeq = Y.template("account/index").map { nodeSeq =>
+  private def index: NodeSeq = Y.template("single/index").map { nodeSeq =>
     val account = Account.find(SessionManager.theAccountId.open_!).open_!
     val cssSel =
       "data-yj=username" #> account.username
 
     cssSel(nodeSeq)
-  } openOr Text("模板: account/index 未找到")
+  } openOr Text("模板: single/index 未找到")
 
-  private def temp1: NodeSeq = Y.template("account/temp1").map { nodeSeq =>
+  private def message: NodeSeq = Y.template("single/message").map { nodeSeq =>
     nodeSeq
-  } openOr Text("模板: account/temp1 未找到")
+  } openOr Text("模板: single/message 未找到")
 
-  private def temp2: NodeSeq = Y.template("account/temp2").map { nodeSeq =>
+  private def temp2: NodeSeq = Y.template("single/temp2").map { nodeSeq =>
     nodeSeq
-  } openOr Text("模板: account/temp2 未找到")
+  } openOr Text("模板: single/temp2 未找到")
 
-  private def edit: NodeSeq = Y.template("account/edit").map { nodeSeq =>
+  private def edit: NodeSeq = Y.template("single/edit").map { nodeSeq =>
     val cssSel = reqAccount.is match {
       case Failure(msg, _, _) =>
         "*" #> msg
@@ -83,7 +84,7 @@ class AccountSnippet {
         "*" #> "系统错误"
     }
     SHtml.ajaxForm(cssSel(nodeSeq))
-  } openOr Text("模板: account/edit 未找到")
+  } openOr Text("模板: single/edit 未找到")
 
   /**
    * TODO 文件上传的Ajax功能还没实现
@@ -91,7 +92,7 @@ class AccountSnippet {
   private object reqEmail extends RequestVar[EmailContent](EmailContent.create)
   private object reqUpload extends RequestVar[Box[FileParamHolder]](Empty)
   private def sendEmail: NodeSeq = {
-    Y.template("account/send_email").map { nodeSeq =>
+    Y.template("single/send_email").map { nodeSeq =>
       val cssSel = "@hostName" #> SHtml.text("smtp.qq.com", reqEmail.is.hostName = _) &
         "@smtpPort" #> SHtml.text("465", v => reqEmail.is.smtpPort = asInt(v).openOr(0)) &
         "@username" #> SHtml.text("yang.xunjing", reqEmail.is.username = _) &
@@ -109,7 +110,7 @@ class AccountSnippet {
       }) ++ SHtml.button("发送", () => ()))
 
       SHtml.ajaxForm(cssSel(nodeSeq))
-    } openOr Text("模板: account/send_mail 未找到")
+    } openOr Text("模板: single/send_mail 未找到")
   }
 
   def delete(nodeSeq: NodeSeq): NodeSeq = {
@@ -145,26 +146,17 @@ class AccountSnippet {
     Empty
   }
 
-  /**
-   * private def ready = JsCmds.Run(
-   * """
-   * var hrefHash = window.location.hash.split('=')[1];
-   * if (hrefHash === 'temp1')
-   * $('#yj-a-temp1').click();
-   * else if(hrefHash === 'temp2')
-   * $('#yj-a-temp2').click();
-   * else if (hrefHash === 'edit')
-   * $('#yj-a-edit').click();
-   * else if (hrefHash === 'send_mail')
-   * $('#yj-a-send_mail).click();
-   * """)
-   */
+  private def ready = JsCmds.Run(
+    """
+    var hrefHash = window.location.hash.split('=')[1];
+    $('#yj-a-' + hrefHash).click();
+    """)
 
   /**
    * (id, hash)
    */
   private def hrefHash(idHashPair: (String, String)*) = JsCmds.Run(idHashPair.map(pair =>
-    "if (hrefHash === '%s')  $('#%s').click(); ".format(pair._2, pair._1))
+    "if (hrefHash == '%s')  $('#%s').click(); ".format(pair._2, pair._1))
     .mkString("var hrefHash = window.location.hash.split('=')[1]; ", " else ", ""))
 
 }
