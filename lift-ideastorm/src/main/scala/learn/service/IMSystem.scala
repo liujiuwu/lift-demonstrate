@@ -16,6 +16,8 @@ import me.yangbajing.util.Utils._
 object IMSystem {
   private lazy val _main = System.system.actorOf(Props[IMDispatcher], "im-dispatcher")
 
+  @volatile var isRunning = false
+
   def shutdown() {
     _main ! Terminated
   }
@@ -30,9 +32,18 @@ object IMSystem {
       case line @ MessageLine(fromLiftActor, fromId, toId, msg, when) =>
         lines = line :: lines.take(200)
 
-        for (toComet <- listenerMap.get(toId)) {
+        for (toComet <- listenerMap.get(toId) if toComet ne null) {
           toComet ! MessageLines(self, line :: Nil)
           println("\nMessageLine: %s\n" format line)
+        }
+
+      case a @ OnlineAccountIds(accountIds) =>
+        listenerMap = for (
+          listener <- listenerMap;
+          (accountId, toComet) = listener if toComet ne null
+        ) yield {
+          toComet ! a
+          listener
         }
 
       case MessageRegisterListener(liftActor, accountId) =>
@@ -48,6 +59,15 @@ object IMSystem {
 
         println("MessageRemoveListener liftaccount: %s, account: %s\n\n" format (liftActor, accountId))
 
+    }
+
+    override def preStart() {
+      isRunning = true
+      println("%s isRunning: %s" format (self.toString, isRunning.toString))
+    }
+
+    override def postStop() {
+      isRunning = false
     }
   }
 

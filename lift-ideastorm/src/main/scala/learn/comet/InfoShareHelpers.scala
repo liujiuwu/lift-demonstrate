@@ -24,17 +24,15 @@ class InfoShareHelpers(liftComet: CometActor) {
 
   private val openTabs = scala.collection.mutable.HashSet[String]()
 
-  def accountList(): NodeSeq = {
-    val onlineAccountIds = ContextSystem.onlineAccountIds.toList
-
-    <span>{ theAccountId.open_! }</span>
+  def accountList(onlineAccountIds: Seq[String]): NodeSeq = theAccountId.dmap(NodeSeq.Empty) { sessionAccountId =>
+    <span>ID: { sessionAccountId }</span>
     <ul class="nav nav-tabs nav-stacked">
       {
-        Account.findAll.map { account =>
+        Account.findAll.filterNot(_.id == sessionAccountId).map { account =>
           val state = if (onlineAccountIds.contains(account.id)) "在线" else "离线"
           <li>{
             Y.ajaxA(account.username + " " + state, Full("/infoshare?accountId=" + account.id), () => {
-              if (openTabs.contains(account.id) || account.id == theAccountId.open_!) {
+              if (openTabs.contains(account.id) || account.id == sessionAccountId) {
                 JsCmds.Run("$('#account_tab_%s').click();" format account.id)
               } else {
 

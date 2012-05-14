@@ -7,11 +7,11 @@ import net.liftweb.http.{ SHtml, S, CometActor, RequestVar }
 import net.liftweb.actor.{ LiftActor }
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.{ JE, JsCmds }
-import JsCmds.Noop
+import JsCmds.{ Noop, SetHtml }
 import net.liftweb.http.js.jquery.JqJsCmds.{ AppendHtml }
 
 import learn.web.Y
-import learn.service.{ IMSystem, MessageLine, MessageLines, MessageRegisterListener, MessageRemoveListener, SessionManager }
+import learn.service._
 import SessionManager.theAccountId
 import learn.model.Account
 
@@ -26,12 +26,15 @@ class InfoShareComet extends CometActor { liftComet =>
   private object reqMsg extends RequestVar[String]("")
 
   override def render = {
-    "@accountList" #> helper.accountList
+    "#account_list *" #> helper.accountList(ContextSystem.onlineAccountIds.toSeq)
   }
 
   override def lowPriority = {
     case a @ MessageLines(imActor, lines) =>
       partialUpdate(appendHtml(lines: _*))
+
+    case OnlineAccountIds(onlineIds) =>
+      partialUpdate(SetHtml("account_list", helper.accountList(onlineIds.toSeq)))
   }
 
   override def localSetup {

@@ -25,7 +25,7 @@ class OnlineAccountComet extends CometActor { onlineComet =>
 
   override def lowPriority = {
     case OnlineAccountIds(accountIds) =>
-      partialUpdate(SetHtml("account_list", accountNodeSeq(accountIds: _*)))
+      partialUpdate(SetHtml("account_list", accountNodeSeq(accountIds.toSeq: _*)))
   }
 
   private def accountNodeSeq(accountId: String*) = {

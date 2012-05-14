@@ -16,7 +16,7 @@ import me.yangbajing.util.Utils._
 
 case object RefreshOnlineStatus
 
-case class OnlineAccountIds(accountIds: List[String])
+case class OnlineAccountIds(accountIds: Set[String])
 
 case class AccountLogin(accountId: String)
 case class AccountLogout(accountId: String)
@@ -29,12 +29,8 @@ object ContextSystem {
   @volatile
   var onlineAccountIds: Set[String] = Set()
 
-  
-
   object s {
-    lazy val context = {
-      System.system.actorOf(Props[ContextDispatcher], "context-dispatcher")
-    }
+    lazy val context = System.system.actorOf(Props[ContextDispatcher], "context-dispatcher")
   }
 
   def shutdown() {
@@ -42,20 +38,36 @@ object ContextSystem {
   }
 
   class ContextDispatcher extends Actor {
-    @volatile private var listeners = Set[LiftActor]()
+    private var liftListeners = Set[LiftActor]()
+    private var scheduleCancel: Option[Cancellable] = None
+
+    override def preStart() {
+      scheduleCancel = Full(System.system.scheduler.schedule(15 seconds, 15 seconds) {
+        self ! RefreshOnlineStatus
+      })
+    }
+
+    override def postStop() {
+      for (s <- scheduleCancel if !s.isCancelled) { s.cancel() }
+      scheduleCancel = None
+    }
 
     def receive = {
       case RefreshOnlineStatus =>
-        listeners = for (listener <- listeners if listener ne null) yield {
-          listener ! OnlineAccountIds(onlineAccountIds.toList)
+        liftListeners = for (listener <- liftListeners if listener ne null) yield {
+          listener ! OnlineAccountIds(onlineAccountIds)
           listener
         }
+
+        if (IMSystem.isRunning) {
+          IMSystem.main ! OnlineAccountIds(onlineAccountIds)
+	}
 
       case a @ AccountLogin(accountId) =>
         onlineAccountIds += accountId
         self ! RefreshOnlineStatus
 
-        listeners = for (listener <- listeners if listener ne null) yield {
+        liftListeners = for (listener <- liftListeners if listener ne null) yield {
           listener ! a
           listener
         }
@@ -64,20 +76,20 @@ object ContextSystem {
         onlineAccountIds -= accountId
         self ! RefreshOnlineStatus
 
-        listeners = for (listener <- listeners if listener ne null) yield {
+        liftListeners = for (listener <- liftListeners if listener ne null) yield {
           listener ! a
           listener
         }
 
       case a @ LiftActorRegisterListener(liftActor, accountIdBox) =>
-        listeners += liftActor
+        liftListeners += liftActor
         for (accountId <- accountIdBox if !onlineAccountIds.contains(accountId)) {
           onlineAccountIds += accountId
           self ! RefreshOnlineStatus
         }
 
       case a @ LiftActorRemoveListener(liftActor, accountIdBox) =>
-        listeners -= liftActor
+        liftListeners -= liftActor
         for (accountId <- accountIdBox if onlineAccountIds.contains(accountId)) {
           onlineAccountIds -= accountId
           self ! RefreshOnlineStatus
@@ -87,18 +99,6 @@ object ContextSystem {
         onlineAccountIds += accountId
         self ! RefreshOnlineStatus
 
-    }
-
-    var schedule: Option[Cancellable] = None
-    override def preStart() {
-      schedule = Full(System.system.scheduler.schedule(15 seconds, 15 seconds) {
-        self ! RefreshOnlineStatus
-      })
-    }
-
-    override def postStop() {
-      for (s <- schedule if !s.isCancelled) s.cancel()
-      schedule = None
     }
   }
 
