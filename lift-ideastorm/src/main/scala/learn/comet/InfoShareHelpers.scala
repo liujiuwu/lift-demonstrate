@@ -51,14 +51,16 @@ class InfoShareHelpers(liftComet: CometActor) {
 
   def msgWindow(toAccount: Account): NodeSeq = {
     val sendArea =
-      <div>{ SHtml.textarea("", reqMsg(_), "style" -> "height:128px;", "class" -> "span8") }</div>
+      <div>{ SHtml.textarea("", reqMsg(_), "style" -> "height:128px;", "class" -> "span8", "id" -> ("msg_send_textarea_" + toAccount.id)) }</div>
       <div>{
-        SHtml.button("发送", () => (), "id" -> "smg_send_button") ++
+        SHtml.button("发送", () => (), "id" -> ("msg_send_button_" + toAccount.id)) ++
           SHtml.hidden(() => if (reqMsg.is != "") {
             val msg = MessageLine(liftComet, theAccountId.open_!, toAccount.id, Text(reqMsg.is), timeNow)
 
             IMSystem.main ! msg
-            AppendHtml("msg_window_" + msg.toId, line(msg))
+
+            JsCmds.Run("$('#msg_send_textarea_%s').val('');" format toAccount.id) &
+              AppendHtml("msg_window_" + msg.toId, line(msg))
           } else {
             Noop
           })
@@ -80,11 +82,7 @@ class InfoShareHelpers(liftComet: CometActor) {
   }
 
   def accountTabItem(account: Account): NodeSeq = {
-    val cssSel =
-      "#account_tab_ [id]" #> "account_tab_%s".format(account.id) &
-        "@nickname" #> account.username
-
-    cssSel(accountTabItemNode(account))
+    <li><a href={ "#msg_window_frame_" + account.id } id={ "account_tab_" + account.id } data-toggle="tab">{ account.username }</a></li>
   }
 
   def line(line: MessageLine): NodeSeq = {
@@ -97,9 +95,6 @@ class InfoShareHelpers(liftComet: CometActor) {
 
     cssSel(lineTemplate openOr defaultTemplate)
   }
-
-  private def accountTabItemNode(account: Account) =
-    <li><a href={ "#msg_window_frame_" + account.id } data-toggle="tab">{ account.username }</a></li>
 
   private val defaultTemplate: NodeSeq =
     <li>
