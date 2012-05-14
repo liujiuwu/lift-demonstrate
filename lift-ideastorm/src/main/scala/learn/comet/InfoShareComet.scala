@@ -11,7 +11,7 @@ import JsCmds.Noop
 import net.liftweb.http.js.jquery.JqJsCmds.{ AppendHtml }
 
 import learn.web.Y
-import learn.service.{ IMSystem, InfoShareHelpers, MessageLine, MessageLines, MessageRegisterListener, MessageRemoveListener, SessionManager }
+import learn.service.{ IMSystem, MessageLine, MessageLines, MessageRegisterListener, MessageRemoveListener, SessionManager }
 import SessionManager.theAccountId
 import learn.model.Account
 
@@ -31,7 +31,6 @@ class InfoShareComet extends CometActor { liftComet =>
 
   override def lowPriority = {
     case a @ MessageLines(imActor, lines) =>
-      println("\nInfoShareComet: \n%s\n\n" format a)
       partialUpdate(appendHtml(lines: _*))
   }
 

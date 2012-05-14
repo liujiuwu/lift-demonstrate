@@ -1,4 +1,4 @@
-package learn.service
+package learn.comet
 
 import scala.xml.{ NodeSeq, Text }
 
