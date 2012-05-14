@@ -33,7 +33,7 @@ class InfoShareComet extends CometActor { liftComet =>
     case a @ MessageLines(imActor, lines) =>
       partialUpdate(appendHtml(lines: _*))
 
-    case OnlineAccountIds(onlineIds) =>
+    case OnlineStatus(onlineIds) =>
       partialUpdate(SetHtml("account_list", helper.accountList(onlineIds.toSeq)))
   }
 

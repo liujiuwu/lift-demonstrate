@@ -12,7 +12,7 @@ import SHtml.ElemAttr
  * why Y
  * Yangbajing => Y
  *
-  * 一些与HTML、WEB相关的工具方法
+ * 一些与HTML、WEB相关的工具方法
  */
 object Y {
 
@@ -50,9 +50,7 @@ object Y {
   def ajaxA(text: String, href: Box[String], func: () => JsCmd, attrs: ElemAttr*): Elem = ajaxA(Text(text), href, func, attrs: _*)
 
   def ajaxA(text: NodeSeq, href: Box[String], func: () => JsCmd, attrs: ElemAttr*): Elem = {
-    val elem = S.fmapFunc(S.contextFuncBuilder(func)) { name =>
-      <a onclick={ SHtml.makeAjaxCall(JE.Str(name + "=true")).toJsCmd + "; return false;" }>{ text }</a>
-    }
+    val elem = S.fmapFunc(S.contextFuncBuilder(func))(name => <a onclick={ SHtml.makeAjaxCall(JE.Str(name + "=true")).toJsCmd + "; return false;" }>{ text }</a>)
     val attrsElem = attrs.foldLeft(elem)((elem, attr) => attr(elem))
     href.map(link => ElemAttr.pairToBasic("href" -> link)(attrsElem)) openOr attrsElem
   }

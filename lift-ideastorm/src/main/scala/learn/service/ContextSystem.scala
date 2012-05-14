@@ -16,13 +16,13 @@ import me.yangbajing.util.Utils._
 
 case object RefreshOnlineStatus
 
-case class OnlineAccountIds(accountIds: Set[String])
+case class OnlineStatus(accountIds: Set[String])
 
 case class AccountLogin(accountId: String)
 case class AccountLogout(accountId: String)
 
-case class LiftActorRegisterListener(liftActor: LiftActor, accountId: Box[String])
-case class LiftActorRemoveListener(liftActor: LiftActor, accountId: Box[String])
+case class SubscribeOnlineStatus(liftActor: LiftActor, accountId: Box[String])
+case class UnsubscribeOnlineStatus(liftActor: LiftActor, accountId: Box[String])
 case class CometStatus(liftActor: LiftActor, accountId: Box[String])
 
 object ContextSystem {
@@ -42,7 +42,8 @@ object ContextSystem {
     private var scheduleCancel: Option[Cancellable] = None
 
     override def preStart() {
-      scheduleCancel = Full(System.system.scheduler.schedule(15 seconds, 15 seconds) {
+      // TODO 是否需要每半分钟强制刷新
+      scheduleCancel = Full(System.system.scheduler.schedule(30 seconds, 30 seconds) {
         self ! RefreshOnlineStatus
       })
     }
@@ -55,12 +56,12 @@ object ContextSystem {
     def receive = {
       case RefreshOnlineStatus =>
         liftListeners = for (listener <- liftListeners if listener ne null) yield {
-          listener ! OnlineAccountIds(onlineAccountIds)
+          listener ! OnlineStatus(onlineAccountIds)
           listener
         }
 
         if (IMSystem.isRunning) {
-          IMSystem.main ! OnlineAccountIds(onlineAccountIds)
+          IMSystem.main ! OnlineStatus(onlineAccountIds)
 	}
 
       case a @ AccountLogin(accountId) =>
@@ -81,14 +82,14 @@ object ContextSystem {
           listener
         }
 
-      case a @ LiftActorRegisterListener(liftActor, accountIdBox) =>
+      case a @ SubscribeOnlineStatus(liftActor, accountIdBox) =>
         liftListeners += liftActor
         for (accountId <- accountIdBox if !onlineAccountIds.contains(accountId)) {
           onlineAccountIds += accountId
           self ! RefreshOnlineStatus
         }
 
-      case a @ LiftActorRemoveListener(liftActor, accountIdBox) =>
+      case a @ UnsubscribeOnlineStatus(liftActor, accountIdBox) =>
         liftListeners -= liftActor
         for (accountId <- accountIdBox if onlineAccountIds.contains(accountId)) {
           onlineAccountIds -= accountId

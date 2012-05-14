@@ -34,10 +34,9 @@ object IMSystem {
 
         for (toComet <- listenerMap.get(toId) if toComet ne null) {
           toComet ! MessageLines(self, line :: Nil)
-          println("\nMessageLine: %s\n" format line)
         }
 
-      case a @ OnlineAccountIds(accountIds) =>
+      case a @ OnlineStatus(accountIds) =>
         listenerMap = for (
           listener <- listenerMap;
           (accountId, toComet) = listener if toComet ne null
@@ -52,12 +51,8 @@ object IMSystem {
         liftActor ! MessageLines(self, MessageLine(liftActor, "systemId", accountId, Text("欢迎来到IM系统"), Helpers.timeNow) :: Nil)
         liftActor ! MessageLines(self, lines.filter(_.toId == accountId).take(15))
 
-        println("MessageRegisterListener liftaccount: %s, account: %s\n\n" format (liftActor, accountId))
-
       case MessageRemoveListener(liftActor, accountId) =>
         listenerMap -= accountId
-
-        println("MessageRemoveListener liftaccount: %s, account: %s\n\n" format (liftActor, accountId))
 
     }
 
@@ -68,6 +63,8 @@ object IMSystem {
 
     override def postStop() {
       isRunning = false
+      lines = Nil
+      listenerMap = Map[String, LiftActor]()
     }
   }
 

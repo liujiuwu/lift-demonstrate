@@ -24,7 +24,7 @@ class OnlineAccountComet extends CometActor { onlineComet =>
   }
 
   override def lowPriority = {
-    case OnlineAccountIds(accountIds) =>
+    case OnlineStatus(accountIds) =>
       partialUpdate(SetHtml("account_list", accountNodeSeq(accountIds.toSeq: _*)))
   }
 
@@ -33,10 +33,10 @@ class OnlineAccountComet extends CometActor { onlineComet =>
   }
 
   override def localSetup {
-    ContextSystem.s.context ! LiftActorRegisterListener(onlineComet, Empty)
+    ContextSystem.s.context ! SubscribeOnlineStatus(onlineComet, Empty)
   }
 
   override def localShutdown {
-    ContextSystem.s.context ! LiftActorRemoveListener(onlineComet, Empty)
+    ContextSystem.s.context ! UnsubscribeOnlineStatus(onlineComet, Empty)
   }
 }

@@ -19,13 +19,21 @@ import learn.model.Account
 class ContextComet extends CometActor { contextComet =>
 
   override def render = {
+    S.appendJs(JsCmds.Run("$('#reflush_context').click();")) // TODO 没起作用?
+
     "#%s *".format(MSG) #> "0" &
       "#%s *".format(BACKLOG) #> "0" &
-      "#%s *".format(IMPORTANT) #> "0"
+      "#%s *".format(IMPORTANT) #> "0" &
+      "#reflush_context" #> <li>{
+        Y.ajaxA("刷新", () => {
+          ContextSystem.s.context ! RefreshOnlineStatus
+        })
+      }</li>
+
   }
 
   override def lowPriority = {
-    case OnlineAccountIds(onlineAccountIds) if theAccountId.isDefined =>
+    case OnlineStatus(onlineAccountIds) if theAccountId.isDefined =>
       // TODO 测试用，需替换 
 
       for (accountId <- theAccountId if !onlineAccountIds.contains(accountId)) {
@@ -39,12 +47,12 @@ class ContextComet extends CometActor { contextComet =>
 
   override def localSetup {
     println("\n\n ContextComet setup %s\n\n" format this)
-    ContextSystem.s.context ! LiftActorRegisterListener(contextComet, theAccountId.is)
+    ContextSystem.s.context ! SubscribeOnlineStatus(contextComet, theAccountId.is)
   }
 
   override def localShutdown {
     println("\n\n ContextComet shutdown %s\n\n" format this)
-    ContextSystem.s.context ! LiftActorRemoveListener(contextComet, theAccountId.is)
+    ContextSystem.s.context ! UnsubscribeOnlineStatus(contextComet, theAccountId.is)
   }
 
   private def summary(account: Account): NodeSeq = {

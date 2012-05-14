@@ -17,37 +17,29 @@ import learn.model.Account
 import SessionManager.theAccountId
 
 class SessionSnippet {
-  def navCollapse: NodeSeq = {
-    val cssSel = theAccountId.is match {
-      case Full(accountId) =>
-        val account = Account.find(accountId).open_!
+  def navCollapse: NodeSeq = theAccountId.is match {
+    case Full(accountId) =>
+      val account = Account.find(accountId).open_!
+
+      val cssSel =
         "@username" #> account.username &
           ".dropdown-menu" #> <div>
+                                <li>#其它功能#</li>
+                                <li class="divider"></li>
                                 <li><a href="/session/logout">退出</a></li>
                               </div>
-      case _ =>
-        "@username" #> "登陆/注册" &
-          ".dropdown-menu" #> <div>
-                                <li><a href="/session/login">登陆</a></li>
-                                <li><a href="/session/register">注册</a></li>
-                              </div> &
-          ".dropdown-toggle [class]" #> "btn btn-info dropdown-toggle"
-    }
-    cssSel(_navCollapse)
+      cssSel(_navCollapse) ++ Y.template("navbar-comet").open_!
+
+    case _ =>
+      val cssSel = "@username" #> "登陆/注册" &
+        ".dropdown-menu" #> <div>
+                              <li><a href="/session/login">登陆</a></li>
+                              <li><a href="/session/register">注册</a></li>
+                            </div> &
+        ".dropdown-toggle [class]" #> "btn btn-info dropdown-toggle"
+      cssSel(_navCollapse)
+
   }
 
-  private val _navCollapse =
-    <div class="nav-collapse">
-      <div class="btn-group pull-right">
-        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
-          <span name="username">#用户名#</span>
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-        </ul>
-      </div>
-    </div>
-
-  //<a class="brand">#子系统名称#</a>
-
+  private val _navCollapse = Y.template("navbar-session").open_!
 }
