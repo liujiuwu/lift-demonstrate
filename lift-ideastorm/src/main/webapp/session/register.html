@@ -1,12 +1,52 @@
 <div class="lift:surround?with=default;at=content">
-  <h1>忙啊，兄弟等下呗~~~~~~~~</h1>
+  <div class="page-header">
+    <h1>注册</h1>
+  </div>
 
   <div>
-    <p>当前提供以下有效账户/密码用于测试</p>
-    <ul>
-      <li>yangjing / yangjing</li>
-      <li>yangbajing / yangbajing</li>
-      <li>羊八井 / yangbajing</li>
-    </ul>
+    <form class="form-horizontal lift:RegisterSnippet?form=post">
+      <fieldset>
+	<div class="control-group" id="group_username">
+	  <label class="control-label" for="username">用户名</label>
+	  <div class="controls">
+	    <input id="username" type="text" />
+	    <span class="help-inline"></span>
+	  </div>
+	  <div>
+	  </div>
+	</div>
+	<div class="control-group" id="group_email">
+	  <label class="control-label" for="email">Email</label>
+	  <div class="controls">
+	    <input id="email" type="text" />
+	    <span class="help-inline"></span>
+	  </div>
+	</div>
+	<div class="control-group" id="group_password1">
+	  <label class="control-label" for="password1">密码</label>
+	  <div class="controls">
+	    <input id="password1" type="text" />
+	    <span class="help-inline"></span>
+	  </div>
+	</div>
+	<div class="control-group" id="group_password2">
+	  <label class="control-label" for="password2">重复密码</label>
+	  <div class="controls">
+	    <input id="password2" type="text" />
+	    <span class="help-inline"></span>
+	  </div>
+	</div>
+	<div class="control-group" id="group_age">
+	  <label class="control-label" for="age">年龄</label>
+	  <div class="controls">
+	    <input id="age" type="text" />
+	    <span class="help-inline"></span>
+	  </div>
+	</div>
+	<div class="form-actions">
+	  <input type="submit" class="btn btn-primary" value="确定" />
+	</div>
+      </fieldset>
+    </form>
   </div>
 </div>

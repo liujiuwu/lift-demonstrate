@@ -19,16 +19,14 @@ import learn.model.Account
 class ContextComet extends CometActor { contextComet =>
 
   override def render = {
-    S.appendJs(JsCmds.Run("$('#reflush_context').click();")) // TODO 没起作用?
+    S.appendJs(JsCmds.Run("$('#reflush_context').click();"))
 
     "#%s *".format(MSG) #> "0" &
       "#%s *".format(BACKLOG) #> "0" &
       "#%s *".format(IMPORTANT) #> "0" &
-      "#reflush_context" #> <li>{
-        Y.ajaxA("刷新", () => {
-          ContextSystem.s.context ! RefreshOnlineStatus
-        })
-      }</li>
+      "#reflush_context" #> Y.ajaxA("刷新", () => {
+        ContextSystem.s.context ! RefreshOnlineStatus
+      })
 
   }
 

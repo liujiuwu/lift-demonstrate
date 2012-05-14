@@ -9,9 +9,14 @@ import org.bouncycastle.util.encoders.Hex
 import me.yangbajing._
 
 object Utils extends TryUsingResources with Implicitly {
+  val emailer = java.util.regex.Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*")
 
   val dateIsoWeak = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E")
   val dateIso = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+  def emailValidate(email: String): Boolean = {
+    emailer.matcher(email).matches
+  }
 }
 
 sealed trait Implicitly {
