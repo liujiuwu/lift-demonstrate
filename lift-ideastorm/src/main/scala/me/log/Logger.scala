@@ -9,9 +9,10 @@ import me.yangbajing.util.Utils
 object Level {
   case object ERROR extends Level(100)
   case object WARN extends Level(200)
-  case object INFO extends Level(300)
-  case object DEBUG extends Level(400)
-  case object TRACE extends Level(500)
+  case object SUCCESS extends Level(300)
+  case object INFO extends Level(400)
+  case object DEBUG extends Level(500)
+  case object TRACE extends Level(600)
 }
 
 case class Log(
@@ -118,6 +119,7 @@ class DefaultLogger(val className: String) extends Logger {
     level match {
       case Level.ERROR if enableError => sendLog
       case Level.WARN if enableWarn => sendLog
+      case Level.SUCCESS if enableSuccess => sendLog
       case Level.INFO if enableInfo => sendLog
       case Level.DEBUG if enableDebug => sendLog
       case Level.TRACE if enableTrace => sendLog
@@ -128,6 +130,7 @@ class DefaultLogger(val className: String) extends Logger {
 trait LoggerRules {
   @volatile var enableError = true
   @volatile var enableWarn = true
+  @volatile var enableSuccess = true
   @volatile var enableInfo = true
   @volatile var enableDebug = false
   @volatile var enableTrace = false

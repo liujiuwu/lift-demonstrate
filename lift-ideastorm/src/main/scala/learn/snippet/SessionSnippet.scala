@@ -35,6 +35,7 @@ class SessionSnippet {
         ".dropdown-menu" #> <div>
                               <li><a href="/session/login">登陆</a></li>
                               <li><a href="/session/register">注册</a></li>
+                              <li><a href="/session/register2" title="纯Ajax注册方案">注册2</a></li>
                             </div> &
         ".dropdown-toggle [class]" #> "btn btn-info dropdown-toggle"
       cssSel(_navCollapse)

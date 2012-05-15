@@ -5,8 +5,6 @@ package plugins.mongodb
 import akka.actor.{ Actor, ActorSystem, Props, ActorRef }
 
 class MongoActor extends Actor {
-  println(this + " kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk ")
-
   def receive = {
     case log: Log =>
       // write database
@@ -19,9 +17,11 @@ class MongoActor extends Actor {
 
   override def preStart() {
     LoggerSystem.is ! LoggerSubscribe(self)
+    println("%s start" format self)
   }
 
   override def postStop() {
+    println("%s stop" format self)
     LoggerSystem.is ! LoggerUnsbuscribe(self)
   }
 }

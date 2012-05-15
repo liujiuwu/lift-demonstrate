@@ -31,10 +31,11 @@ class Boot {
       Menu("index", "首页") / "index" >> accountAccess,
       Menu("single", "单页") / "single" >> accountAccess,
       Menu("test", "Test") / "test" / ** >> accountAccess,
-      Menu("infoshare",  "Info Share") / "infoshare" >> accountAccess,
+      Menu("infoshare", "Info Share") / "infoshare" >> accountAccess,
       Menu("session", "会话") / "session" / "inTryUsingResourcesdex" submenus (
         Menu("session-login", "登陆") / "session" / "login",
         Menu("session-register", "注册") / "session" / "register",
+        Menu("session-register2", "注册2") / "session" / "register2",
         Menu("session-logout", "退出") / "session" / "logout" >> accountLogout))
 
     LiftRules.setSiteMap(siteMap)

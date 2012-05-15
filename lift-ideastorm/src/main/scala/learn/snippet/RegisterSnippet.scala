@@ -19,7 +19,13 @@ private case class AR(
   var username: String = "",
   var email: String = "",
   var password: String = "",
-  var age: Int = 0)
+  var password2: String = "",
+  var age: Int = 0) {
+
+  def validate: Boolean = {
+    username.length > 1 && password == password2 && password.length > 5 && age > 12
+  }
+}
 
 object RegisterSnippet {
   private object reqAccount extends RequestVar[AR](new AR)
@@ -65,6 +71,7 @@ object RegisterSnippet {
     if (emailValidate(email)) {
       state = SUCCESS
       value = Full(email)
+      msg = ""
     }
 
     jscmd("email", state, msg, value)
@@ -94,6 +101,7 @@ object RegisterSnippet {
 
     if (reqAccount.password != "" && password == reqAccount.password) {
       state = SUCCESS
+      value = Full(password)
     } else {
       msg = "密码不匹配"
       state = ERROR
@@ -127,10 +135,11 @@ object RegisterSnippet {
           SHtml.hidden(reqAccount.email = _, "", "id" -> "hidden_email")) &
           "#password1" #> (SHtml.ajaxText("", validatePassword1(_), "type" -> "password") ++
             SHtml.hidden(reqAccount.password = _, "", "id" -> "hidden_password1")) &
-            "#password2" #> SHtml.ajaxText("", validatePassword2(_), "type" -> "password") &
-            "#age" #> (SHtml.ajaxText(if (reqAccount.age < 1) "" else reqAccount.age.toString, validateAge(_)) ++
-              SHtml.hidden(v => reqAccount.age = asInt(v).openOr(-1), "", "id" -> "hidden_age")) &
-              "type=submit" #> SHtml.submit("注册", register)
+            "#password2" #> (SHtml.ajaxText("", validatePassword2(_), "type" -> "password") ++
+              SHtml.hidden(reqAccount.password2 = _, "", "id" -> "hidden_password2")) &
+              "#age" #> (SHtml.ajaxText(if (reqAccount.age < 1) "" else reqAccount.age.toString, validateAge(_)) ++
+                SHtml.hidden(v => reqAccount.age = asInt(v).openOr(-1), "", "id" -> "hidden_age")) &
+                "type=submit" #> SHtml.submit("注册", register)
 
     cssSel(nodeSeq)
   }
