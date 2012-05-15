@@ -34,8 +34,6 @@ object Account extends me.yangbajing.log.Loggable {
   }
 
   def apply(username: String, password: String): Box[AccountImpl] = {
-    logger.debug("username: %s\npassword: %s" format (username, password))
-
     def passwordEq(record: AccountRecord) =
       if (record.password.isMatch(password)) Full(true)
       else Failure("密码错误")

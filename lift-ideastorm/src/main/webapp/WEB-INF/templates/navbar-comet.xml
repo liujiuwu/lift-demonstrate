@@ -16,5 +16,6 @@
       </ul>
       <span class="btn"><span class="caret" /></span>
     </div>
+    <span id="hidden_reflush_context" />
   </div>
 </div> <!-- context_status -->

@@ -16,6 +16,7 @@ private[log] class MongoActor extends Actor {
 
     case MongoConnUri(host, port, db, collection, username, password) =>
       mongo = new MongoLog(host, port, db, collection, username, password)
+      
   }
 
   override def preStart() {

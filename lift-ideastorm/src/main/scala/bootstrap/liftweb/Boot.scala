@@ -32,6 +32,7 @@ class Boot {
       Menu("single", "单页") / "single" >> accountAccess,
       Menu("test", "Test") / "test" / ** >> accountAccess,
       Menu("infoshare", "Info Share") / "infoshare" >> accountAccess,
+      Menu("center", "Account Center") / "c" / ** >> accountAccess,
       Menu("session", "会话") / "session" / "inTryUsingResourcesdex" submenus (
         Menu("session-login", "登陆") / "session" / "login",
         Menu("session-register", "注册") / "session" / "register",

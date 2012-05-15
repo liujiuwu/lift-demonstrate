@@ -7,7 +7,6 @@ import net.liftweb.sitemap.Loc.{ If, Unless, TestAccess }
 import learn.model.Account
 
 object SessionManager extends me.yangbajing.log.Loggable {
-
   object theAccountId extends SessionVar[Box[String]](Empty)
 
   def accountAccess = TestAccess { () =>
@@ -46,7 +45,7 @@ object SessionManager extends me.yangbajing.log.Loggable {
     theAccountId(Full(accountId))
 
     ContextSystem.s.context ! AccountLogin(accountId)
-    println("ContextSystem.main ! AccountLogin(accountId)")
+    logger.debug("ContextSystem.main ! AccountLogin(accountId)")
 
     if (beReset) {
       S.addCookie(Account.httpCookie(accountId).open_!) // 此处可安全打开

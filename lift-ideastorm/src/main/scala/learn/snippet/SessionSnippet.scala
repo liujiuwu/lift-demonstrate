@@ -21,6 +21,8 @@ class SessionSnippet {
     case Full(accountId) =>
       val account = Account.find(accountId).open_!
 
+      S.appendJs(JsCmds.Run("$('#hidden_reflush_context').click();"))
+
       val cssSel =
         "@username" #> account.username &
           ".dropdown-menu" #> <div>

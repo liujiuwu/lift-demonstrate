@@ -42,7 +42,7 @@ object Logger {
 
   object plugins {
     import akka.actor.{ Props, ActorRef }
-    import me.yangbajing.log.plugins.mongodb.{ MongoActor, MongoConnUri }
+    import me.yangbajing.log.plugins.mongodb.{ MongoActor, MongoConnUri, MongoLog }
     import me.yangbajing.log.plugins.stdio.StdioActor
 
     private var stdioActor: ActorRef = null
@@ -61,8 +61,13 @@ object Logger {
       mongoActor ! MongoConnUri(host, port, db, collection, username, password)
     }
     def mongodbStop() {
-      if (mongoActor ne null)
+      if (mongoActor ne null) {
         mongoActor ! LoggerStop
+        mongoActor match {
+          case m: MongoActor if m.mongo ne null => m.mongo.conn.close
+          case _ =>
+        }
+      }
     }
   }
 }

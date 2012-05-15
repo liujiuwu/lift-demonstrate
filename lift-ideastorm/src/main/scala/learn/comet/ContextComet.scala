@@ -19,15 +19,15 @@ import learn.model.Account
 class ContextComet extends CometActor with me.yangbajing.log.Loggable { contextComet =>
 
   override def render = {
-    S.appendJs(JsCmds.Run("$('#reflush_context').click();"))
-
     "#%s *".format(MSG) #> "0" &
       "#%s *".format(BACKLOG) #> "0" &
       "#%s *".format(IMPORTANT) #> "0" &
-      "#reflush_context" #> Y.ajaxA("刷新", () => {
-        ContextSystem.s.context ! RefreshOnlineStatus
-      })
+      "#reflush_context" #> Y.ajaxA("刷新", () => reflushContext) &
+      "#hidden_reflush_context" #> Y.ajaxA("", () => reflushContext, "style" -> "display:none;")
+  }
 
+  private def reflushContext {
+    ContextSystem.s.context ! RefreshOnlineStatus
   }
 
   override def lowPriority = {

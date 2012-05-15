@@ -18,10 +18,12 @@ class Setup extends LoggableLazy {
 
     if (YjProps.enableLogMongodb) {
       Logger.plugins.mongodbStart("localhost", 27017, "learn")
+      LiftRules.unloadHooks.append(() => Logger.plugins.mongodbStop())
     }
 
     if (YjProps.enableLogStdio) {
       Logger.plugins.stdioStart(java.lang.System.out)
+      LiftRules.unloadHooks.append(() => Logger.plugins.stdioStop())
     }
 
     LiftRules.unloadHooks.append(() => Logger.stop())
