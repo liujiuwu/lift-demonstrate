@@ -9,7 +9,6 @@ private[log] class MongoActor extends Actor {
 
   def receive = {
     case log: Log =>
-      println("[MongoActor] " + log)
       mongo += log
 
     case LoggerStop =>

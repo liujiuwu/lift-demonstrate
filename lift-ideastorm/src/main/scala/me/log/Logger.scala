@@ -5,16 +5,6 @@ import java.util.Date
 
 import me.yangbajing.util.Utils
 
-abstract class Level(val code: Int)
-object Level {
-  case object ERROR extends Level(100)
-  case object WARN extends Level(200)
-  case object SUCCESS extends Level(300)
-  case object INFO extends Level(400)
-  case object DEBUG extends Level(500)
-  case object TRACE extends Level(600)
-}
-
 case class Log(
   val l: Level, // 日志级别
   val c: String, // 产生日志的类
@@ -57,7 +47,7 @@ object Logger {
 
     private var stdioActor: ActorRef = null
     def stdioStart(out: java.io.OutputStream) {
-      stdioActor = LoggerSystem.system.actorOf(Props[StdioActor], "logger-plugins-stdio")
+      stdioActor = LoggerSystem.system.actorOf(Props[StdioActor], "logger-plugin-stdio")
       stdioActor ! out
     }
     def stdioStop() {
@@ -67,7 +57,7 @@ object Logger {
 
     private var mongoActor: ActorRef = null
     def mongodbStart(host: String, port: Int = 27017, db: String = "app_log", collection: String = "app_log", username: Option[String] = None, password: Option[String] = None) {
-      mongoActor = LoggerSystem.system.actorOf(Props[MongoActor], "logger-plugins-mongodb")
+      mongoActor = LoggerSystem.system.actorOf(Props[MongoActor], "logger-plugin-mongodb")
       mongoActor ! MongoConnUri(host, port, db, collection, username, password)
     }
     def mongodbStop() {
@@ -140,6 +130,7 @@ class DefaultLogger(val className: String) extends Logger {
       case Level.INFO if enableInfo => sendLog
       case Level.DEBUG if enableDebug => sendLog
       case Level.TRACE if enableTrace => sendLog
+      case _ =>
     }
   }
 }
@@ -154,6 +145,12 @@ trait LoggerRules {
 }
 
 trait Loggable {
-  @transient protected lazy val logger = Logger(this.getClass)
-  @transient protected implicit val _defaultLoggerKey: String = this.getClass.getSimpleName
+  @transient protected val logger = Logger(this.getClass)
+  @transient protected implicit val _defaultLoggerKey: String = ""
 }
+
+trait LoggableLazy {
+  @transient protected lazy val logger = Logger(this.getClass)
+  @transient protected implicit val _defaultLoggerKey: String = ""
+}
+
