@@ -1,5 +1,5 @@
 package me.yangbajing
-package util
+package log
 
 import java.util.Date
 
@@ -15,11 +15,11 @@ object Level {
 case class Log(
   val l: Level, // 日志级别
   val c: String, // 产生日志的类
+  val t: String, // 产生日志时所在线程
   val m: String, // 日志内容
-  val t: Option[Throwable], // 日志产生时的异常
+  val e: Option[Throwable], // 日志产生时的异常
   val k: Option[String], // 日志关键字
-  val d: Date = new Date
-  )
+  val d: Date = new Date)
 
 object Logger {
   def apply(clazz: Class[_]): Logger = apply(clazz.getName)
@@ -70,17 +70,19 @@ trait Logger {
 }
 
 class DefaultLogger(val className: String) extends Logger {
-  import Utils._
+  import me.yangbajing.util.Utils._
   import Level._
   import Logger.rules._
 
-  def logging(level: Level, clazz: String, key: String, msg: => AnyRef, t: => Throwable) {
+  def logging(level: Level, clazz: String, key: String, msg: => AnyRef, e: => Throwable) {
     def sendLog() {
-      LoggerSystem.main ! Log(level,
-        if (clazz eq null) "" else clazz,
-        tryout(msg.toString).getOrElse(""),
-        optionNull(t),
-        optionNull(key))
+      LoggerSystem.main ! Log(
+        l = level,
+        c = if (clazz eq null) "" else clazz,
+        t = Thread.currentThread.getName,
+        m = tryout(msg.toString).getOrElse(""),
+        e = optionNull(e),
+        k = optionNull(key))
     }
 
     level match {
@@ -103,5 +105,5 @@ trait LoggerRules {
 
 trait Loggable {
   @transient protected lazy val logger = Logger(this.getClass)
-  @transient protected implicit val implictKey: String = this.getClass.getSimpleName
+  @transient protected implicit val _defaultLoggerKey: String = this.getClass.getSimpleName
 }

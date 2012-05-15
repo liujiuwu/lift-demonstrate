@@ -4,7 +4,7 @@
 *使用lift comet实现从服务端实时推送消息到客户端*
 
 
-目标
+需求
 ----
 
  - 监控系统：后台硬件热插拔、LED、温度、电压发生变化；
@@ -15,7 +15,10 @@
 方案
 ----
 
+** 使用B/S架构的服务端推送功能 **
 
+ - 基于liftweb comet提供服务端推送功能
+ - 基于akka 2实现后台服务的消息路由，广播功能
 
 
 实现
@@ -32,8 +35,8 @@
 
 **步骤**
 
- - 可在template-hidden/default.html 为统一设置一个 lift:comet?type=xxx，将负责与服务器建立comet连接并等待服务器推送数据。
- - 基于Akka 2 建立一个系统服务ContextSystem，统一处理消息的收，发。
+ - 可在template-hidden/default.html 为统一设置一个 lift:comet?type=xxx，将负责与服务器建立comet连接并等待服务器推送数据
+ - 基于Akka 2 建立一个系统服务ContextSystem，统一处理消息的收，发
  - 使用CometActor的localSetup和localShutdown方法注册/取消对ContextSystem的监听
  - 当ContextSystem收到新的消息时选择路由到对应的CometActor
  - 由CometActor将消息推送到客户端

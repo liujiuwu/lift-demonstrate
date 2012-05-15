@@ -1,10 +1,10 @@
 package me.yangbajing
-package util
+package log
 
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
-import Utils._
+import me.yangbajing.util.Utils._
 
 class LoggerSpec extends FunSuite with ShouldMatchers {
   test("LOgger test ....") {
