@@ -10,7 +10,8 @@ class Setup extends Loggable {
   def setup() {
     Logger.rules.enableDebug = true
     Logger.start()
-    Logger.plugins.mongodbStart()
+    Logger.plugins.mongodbStart("localhost", 27017, "learn")
+    Logger.plugins.stdioStart(java.lang.System.out)
 
     LiftRules.unloadHooks.append(() => Logger.stop())
   }

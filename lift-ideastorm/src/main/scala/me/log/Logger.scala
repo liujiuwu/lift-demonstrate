@@ -5,7 +5,7 @@ import java.util.Date
 
 import me.yangbajing.util.Utils
 
-/*sealed*/ abstract class Level(val code: Int)
+abstract class Level(val code: Int)
 object Level {
   case object ERROR extends Level(100)
   case object WARN extends Level(200)
@@ -27,9 +27,14 @@ case class Log(
   override def toString = {
     "%s level:[%s] class:[%s] thread:[%s], except:[%s], key:[%s], msg:\n%s" format (Utils.dateIso.format(d), l, c, t, e, k, m)
   }
-}
 
-import plugins.mongodb.MongoActor
+  def toMap: Map[String, AnyRef] = {
+    val map = scala.collection.mutable.Map[String, AnyRef]("l" -> l.toString, "c" -> c, "t" -> t, "m" -> m, "d" -> d)
+    e.foreach(map.put("e", _))
+    k.foreach(map.put("k", _))
+    map.toMap
+  }
+}
 
 object Logger {
   def apply(clazz: Class[_]): Logger = apply(clazz.getName)
@@ -47,12 +52,24 @@ object Logger {
 
   object plugins {
     import akka.actor.{ Props, ActorRef }
+    import me.yangbajing.log.plugins.mongodb.{ MongoActor, MongoConnUri }
+    import me.yangbajing.log.plugins.stdio.StdioActor
 
-    private var mongoActor: ActorRef = null
-    def mongodbStart() {
-      mongoActor = LoggerSystem.system.actorOf(Props[MongoActor], "logger-plugins-mongodb")
+    private var stdioActor: ActorRef = null
+    def stdioStart(out: java.io.OutputStream) {
+      stdioActor = LoggerSystem.system.actorOf(Props[StdioActor], "logger-plugins-stdio")
+      stdioActor ! out
+    }
+    def stdioStop() {
+      if (stdioActor ne null)
+        stdioActor ! LoggerStop
     }
 
+    private var mongoActor: ActorRef = null
+    def mongodbStart(host: String, port: Int = 27017, db: String = "app_log", collection: String = "app_log", username: Option[String] = None, password: Option[String] = None) {
+      mongoActor = LoggerSystem.system.actorOf(Props[MongoActor], "logger-plugins-mongodb")
+      mongoActor ! MongoConnUri(host, port, db, collection, username, password)
+    }
     def mongodbStop() {
       if (mongoActor ne null)
         mongoActor ! LoggerStop
@@ -117,8 +134,8 @@ class DefaultLogger(val className: String) extends Logger {
     }
 
     level match {
-      case Level.ERROR if enableError => sendLog
-      case Level.WARN if enableWarn => sendLog
+      case Level.ERROR /*if enableError*/ => sendLog
+      case Level.WARN /*if enableWarn*/ => sendLog
       case Level.SUCCESS if enableSuccess => sendLog
       case Level.INFO if enableInfo => sendLog
       case Level.DEBUG if enableDebug => sendLog

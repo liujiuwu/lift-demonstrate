@@ -33,9 +33,11 @@ private class LoggerSystem extends Actor {
   }
 
   override def preStart() = {
+    println(self + " start...")
   }
 
   override def postStop() = {
+    println(self + " stop...")
     subscribes.foreach(_ ! LoggerSystemStop) // TODO need?
   }
 }

@@ -4,25 +4,33 @@ package plugins.mongodb
 
 import akka.actor.{ Actor, ActorSystem, Props, ActorRef }
 
-class MongoActor extends Actor {
-  def receive = {
-    case log: Log =>
-      // write database
-      // or 继续分发
-      println("[MongoActor] " + log)
+import com.mongodb.casbah.commons.conversions.scala._
+import com.mongodb.casbah.query._
+import com.mongodb.casbah._
 
-    case LoggerStop =>
-      context stop self
+private[log] case class MongoConnUri(host: String, port: Int, db: String, collection: String, username: Option[String] = None, password: Option[String] = None)
+
+private[log] class MongoLog(
+  val mongoHost: String,
+  val mongoPort: Int,
+  val mongoDb: String,
+  val mongoCollection: String,
+  val mongoUsername: Option[String] = None,
+  val mongoPassword: Option[String] = None) {
+
+  val conn = {
+    val uri = for {
+      username <- mongoUsername
+      password <- mongoPassword
+    } yield "mongodb://%s:%s@%s:%d/" format (username, password, mongoHost, mongoPort)
+
+    MongoConnection(MongoURI(uri getOrElse "mongodb://%s:%d".format(mongoHost, mongoPort)))
   }
 
-  override def preStart() {
-    LoggerSystem.is ! LoggerSubscribe(self)
-    println("%s start" format self)
-  }
+  val collection = conn(mongoDb)(mongoCollection)
 
-  override def postStop() {
-    println("%s stop" format self)
-    LoggerSystem.is ! LoggerUnsbuscribe(self)
+  def +=(log: Log) {
+    collection += log.toMap
   }
 }
 
