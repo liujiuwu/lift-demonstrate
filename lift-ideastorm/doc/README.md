@@ -4,21 +4,11 @@
 简介
 ----
 
-纯手工打造基于lift-mongodb-record的用户自动登陆功能。
-
-(注: 当前只支持一个客户端的自动登陆功能。)
-
-*自动登陆实现*
-
-自动登陆使用http cookie实现。原理为在第次登陆成功后都生成一个token值，并将此值存于对应用户的DB和cookie中。
-每次用户自动登陆时都系统将从cookie中取出此token与系统中的值进行比较，且无论自动登陆成功与否都将生成新的token值并分别更新DB和cookie。
-当前token值实现形式为:
-
-    encodeBase64(username) + ":" + md5(new java.util.Date().toString)
+记录我学习liftweb + akka的过程和其中的一些想法。
 
 
-暂时还未做用户注册功能，请在sbt console中手动添加用户
------------------------------------------------------
+可以在sbt console中手动添加用户
+-------------------------------
 
     > console
     [info] Starting scala interpreter...
