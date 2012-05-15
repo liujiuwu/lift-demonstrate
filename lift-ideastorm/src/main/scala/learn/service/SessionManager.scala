@@ -6,7 +6,7 @@ import net.liftweb.sitemap.Loc.{ If, Unless, TestAccess }
 
 import learn.model.Account
 
-object SessionManager extends net.liftweb.common.Loggable {
+object SessionManager extends me.yangbajing.log.Loggable {
 
   object theAccountId extends SessionVar[Box[String]](Empty)
 

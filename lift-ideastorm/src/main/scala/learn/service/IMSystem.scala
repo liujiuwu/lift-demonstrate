@@ -24,7 +24,7 @@ object IMSystem {
 
   def main = _main
 
-  class IMDispatcher extends Actor {
+  class IMDispatcher extends Actor with me.yangbajing.log.Loggable {
     private var lines: List[MessageLine] = Nil
     private var listenerMap: Map[String, LiftActor] = Map[String, LiftActor]()
 
@@ -58,13 +58,14 @@ object IMSystem {
 
     override def preStart() {
       isRunning = true
-      println("%s isRunning: %s" format (self.toString, isRunning.toString))
+      logger.info("%s start" format self)
     }
 
     override def postStop() {
       isRunning = false
       lines = Nil
       listenerMap = Map[String, LiftActor]()
+      logger.info("%s stop" format self)
     }
   }
 

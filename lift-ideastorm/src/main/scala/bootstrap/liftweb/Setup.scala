@@ -2,12 +2,21 @@ package bootstrap.liftweb
 
 import net.liftweb.http._
 
+import me.yangbajing.log.{ Logger, Loggable }
+
 import learn.service.System
 
-class Setup extends net.liftweb.common.Loggable {
+class Setup extends Loggable {
   def setup() {
+    Logger.rules.enableDebug = true
+    Logger.start()
+    Logger.plugins.mongodbStart()
 
-    /*
+    LiftRules.unloadHooks.append(() => Logger.stop())
+  }
+
+  // Not used
+  def test {
     LiftSession.afterSessionCreate = List(
       (session, req) => {
         println("session aftersessionCreate: %s\nreq: %s\n\n" format (session, req))
@@ -35,7 +44,5 @@ class Setup extends net.liftweb.common.Loggable {
     S.session.foreach(_.addSessionCleanup { session =>
       println("\n\nsession: " + session)
     })
-*/
-
   }
 }

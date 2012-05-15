@@ -3,7 +3,9 @@ package log
 
 import java.util.Date
 
-sealed abstract class Level(val code: Int)
+import me.yangbajing.util.Utils
+
+/*sealed*/ abstract class Level(val code: Int)
 object Level {
   case object ERROR extends Level(100)
   case object WARN extends Level(200)
@@ -19,13 +21,42 @@ case class Log(
   val m: String, // 日志内容
   val e: Option[Throwable], // 日志产生时的异常
   val k: Option[String], // 日志关键字
-  val d: Date = new Date)
+  val d: Date = new Date) {
+
+  override def toString = {
+    "%s level:[%s] class:[%s] thread:[%s], except:[%s], key:[%s], msg:\n%s" format (Utils.dateIso.format(d), l, c, t, e, k, m)
+  }
+}
+
+import plugins.mongodb.MongoActor
 
 object Logger {
   def apply(clazz: Class[_]): Logger = apply(clazz.getName)
   def apply(className: String): Logger = new DefaultLogger(className)
 
   object rules extends LoggerRules
+
+  def start() {
+    LoggerSystem.is ! "" // 启动LoggerSystem
+  }
+
+  def stop() {
+    LoggerSystem.system.shutdown()
+  }
+
+  object plugins {
+    import akka.actor.{ Props, ActorRef }
+
+    private var mongoActor: ActorRef = null
+    def mongodbStart() {
+      mongoActor = LoggerSystem.system.actorOf(Props[MongoActor], "logger-plugins-mongodb")
+    }
+
+    def mongodbStop() {
+      if (mongoActor ne null)
+        mongoActor ! LoggerStop
+    }
+  }
 }
 
 trait Logger {
@@ -71,12 +102,11 @@ trait Logger {
 
 class DefaultLogger(val className: String) extends Logger {
   import me.yangbajing.util.Utils._
-  import Level._
   import Logger.rules._
 
   def logging(level: Level, clazz: String, key: String, msg: => AnyRef, e: => Throwable) {
     def sendLog() {
-      LoggerSystem.main ! Log(
+      LoggerSystem.is ! Log(
         l = level,
         c = if (clazz eq null) "" else clazz,
         t = Thread.currentThread.getName,
@@ -86,21 +116,21 @@ class DefaultLogger(val className: String) extends Logger {
     }
 
     level match {
-      case ERROR if enableError => sendLog
-      case WARN if enableWarn => sendLog
-      case INFO if enableInfo => sendLog
-      case DEBUG if enableDebug => sendLog
-      case TRACE if enableTrace => sendLog
+      case Level.ERROR if enableError => sendLog
+      case Level.WARN if enableWarn => sendLog
+      case Level.INFO if enableInfo => sendLog
+      case Level.DEBUG if enableDebug => sendLog
+      case Level.TRACE if enableTrace => sendLog
     }
   }
 }
 
 trait LoggerRules {
-  var enableError = true
-  var enableWarn = true
-  var enableInfo = true
-  var enableDebug = false
-  var enableTrace = false
+  @volatile var enableError = true
+  @volatile var enableWarn = true
+  @volatile var enableInfo = true
+  @volatile var enableDebug = false
+  @volatile var enableTrace = false
 }
 
 trait Loggable {

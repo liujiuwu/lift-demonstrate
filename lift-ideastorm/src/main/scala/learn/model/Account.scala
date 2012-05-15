@@ -5,7 +5,7 @@ import net.liftweb.http.provider.HTTPCookie
 import net.liftweb.util.Helpers
 import net.liftweb.json.JsonDSL._
 
-object Account {
+object Account extends me.yangbajing.log.Loggable {
   val cookieName = "learn.mongodb"
 
   def create(): AccountImpl = {
@@ -34,7 +34,7 @@ object Account {
   }
 
   def apply(username: String, password: String): Box[AccountImpl] = {
-    println("username: %s\npassword: %s" format (username, password))
+    logger.debug("username: %s\npassword: %s" format (username, password))
 
     def passwordEq(record: AccountRecord) =
       if (record.password.isMatch(password)) Full(true)

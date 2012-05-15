@@ -3,14 +3,18 @@ package log
 
 import akka.actor.{ Actor, ActorSystem, Props, ActorRef }
 
+case class LoggerSubscribe(sub: ActorRef)
+case class LoggerUnsbuscribe(sub: ActorRef)
+case object LoggerSystemStop
+case object LoggerStop
+
 object LoggerSystem {
   val systemName = "logger-system"
-  private lazy val system = ActorSystem(systemName)
+  private[log] lazy val system = ActorSystem(systemName)
 
   private lazy val _main = system.actorOf(Props[LoggerSystem], "logger-system")
 
-  def main = _main
-
+  def is = _main
 }
 
 private class LoggerSystem extends Actor {
@@ -18,26 +22,20 @@ private class LoggerSystem extends Actor {
 
   def receive = {
     case log: Log =>
-      context.children.foreach(_ ! log)
+      subscribes.foreach(_ ! log)
 
     case LoggerSubscribe(sub) =>
       subscribes += sub
 
     case LoggerUnsbuscribe(sub) =>
       subscribes -= sub
+
   }
 
   override def preStart() = {
   }
 
   override def postStop() = {
-    subscribes.foreach(_ ! LoggerSystemStop)
-
-    
+    subscribes.foreach(_ ! LoggerSystemStop) // TODO need?
   }
 }
-
-case class LoggerSubscribe(sub: ActorRef)
-case class LoggerUnsbuscribe(sub: ActorRef)
-case object LoggerSystemStop
-

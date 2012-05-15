@@ -14,7 +14,7 @@ import learn.model._
 import learn.web.Y
 import learn.service._
 
-class SingleSnippet {
+class SingleSnippet extends me.yangbajing.log.Loggable {
   private object reqAccount extends RequestVar[Box[AccountRecord]](findRecord)
   private object reqHref extends RequestVar[Box[String]](findReqHref)
 
@@ -104,8 +104,8 @@ class SingleSnippet {
         "@to" #> SHtml.text("yangbajing@gmail.com", v => reqEmail.is.to = v.split(";").toList) &
         "@attachment" #> SHtml.fileUpload(v => reqUpload(Full(v))) // TODO Ajax的文件怎样上专?
       "#form_submit" #> (SHtml.hidden(() => {
-        println("email: " + reqEmail.is)
-        println(reqUpload.is.open_!.toString)
+        logger.debug("email: " + reqEmail.is)
+        logger.debug(reqUpload.is.open_!.toString)
         S notice MailService.send(reqEmail.is)
       }) ++ SHtml.button("发送", () => ()))
 
