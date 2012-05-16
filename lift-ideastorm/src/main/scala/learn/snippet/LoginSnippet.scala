@@ -18,7 +18,7 @@ object LoginSnippet {
   def render(nodeSeq: NodeSeq): NodeSeq = {
     if (theAccountId.is.isDefined) {
       S.warning("用户: %s 您已经登陆" format Account.find(theAccountId.is.open_!).open_!.username)
-      S.redirectTo("/account/index")
+      S.redirectTo("/index")
     }
 
     val cssSel =

@@ -4,7 +4,6 @@ import scala.xml.{ NodeSeq, Text }
 
 import net.liftweb.common.{ Box, Full, Empty, Failure }
 import net.liftweb.http.{ SHtml, S, CometActor, RequestVar }
-import net.liftweb.actor.{ LiftActor }
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.{ JE, JsCmds }
 import JsCmds.{ Noop, SetHtml }
@@ -19,10 +18,12 @@ import learn.model.Account
 
 class AccountCenterComet extends CometActor { self =>
 
-  private val accountId = theAccountId.open_! // 此处安全
+  private val helper = new AccountCenterHelper(self)
 
   override def render = {
-    "#current_datetime *" #> dateIsoWeak.format(new java.util.Date)
+    S.appendJs(ready)
+
+    "#yj-sidebar *" #> helper.sidebar
   }
 
   override def lowPriority = {
@@ -37,4 +38,7 @@ class AccountCenterComet extends CometActor { self =>
 
   }
 
+  private def ready = JsCmds.Run("""
+var hrefHash = window.location.hash.split('=')[1];
+$('#yj-a-' + hrefHash).click();""")
 }

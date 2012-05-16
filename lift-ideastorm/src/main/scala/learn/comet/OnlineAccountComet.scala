@@ -16,7 +16,8 @@ import learn.service._
 import SessionManager.theAccountId
 import learn.model.Account
 
-class OnlineAccountComet extends CometActor { onlineComet =>
+class OnlineAccountComet extends CometActor { self =>
+
   val accountId = theAccountId.open_!
 
   override def render = {
@@ -33,10 +34,10 @@ class OnlineAccountComet extends CometActor { onlineComet =>
   }
 
   override def localSetup {
-    ContextSystem.s.context ! SubscribeOnlineStatus(onlineComet, Empty)
+    ContextSystem.s.context ! SubscribeOnlineStatus(self, Empty)
   }
 
   override def localShutdown {
-    ContextSystem.s.context ! UnsubscribeOnlineStatus(onlineComet, Empty)
+    ContextSystem.s.context ! UnsubscribeOnlineStatus(self, Empty)
   }
 }

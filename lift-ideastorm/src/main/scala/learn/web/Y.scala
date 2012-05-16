@@ -45,6 +45,10 @@ object Y {
     resource(name)
   }
 
+  def processTempate(templatePath: String)(func: NodeSeq => NodeSeq): NodeSeq = {
+    Y.resource(templatePath).map(func) openOr Text("模板% 不存在" format templatePath)
+  }
+
   def ajaxA(text: String, func: () => JsCmd, attrs: ElemAttr*): Elem = ajaxA(text, Empty, func, attrs: _*)
 
   def ajaxA(text: String, href: Box[String], func: () => JsCmd, attrs: ElemAttr*): Elem = ajaxA(Text(text), href, func, attrs: _*)

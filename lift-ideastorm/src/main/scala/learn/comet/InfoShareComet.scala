@@ -18,10 +18,10 @@ import learn.model.Account
 /**
  * SiteMap中已进行了Session判断，这里当可安全的open_! theAccount
  */
-class InfoShareComet extends CometActor { liftComet =>
+class InfoShareComet extends CometActor { self =>
 
   private val accountId = theAccountId.is.open_!
-  private val helper = new InfoShareHelpers(liftComet)
+  private val helper = new InfoShareHelpers(self)
 
   private object reqMsg extends RequestVar[String]("")
 

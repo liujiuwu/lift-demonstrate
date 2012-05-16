@@ -17,9 +17,20 @@
 	<![endif]-->
   </head>
   <body>
-    <div class="lift:embed?what=/WEB-INF/templates/navbar-fixed-top" />
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+	<div class="pull-right">
+	  <div class="clearn" id="loading" style="float:left;display:none;">
+	    <img src="/assets/img/loading.gif" alt="loading..." /> 运行....
+	  </div>
+	</div>
+      </div><!--/.navbar-inner -->
+    </div>
 
-    <lift:bind name="content" />
+    <div class="container">
+      <span class="lift:Msgs" />
+      <lift:bind name="content" />
+    </div>
 
     <!-- Le javascript ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -39,16 +50,9 @@
     <script src="/assets/js/bootstrap-typeahead.js"></script>
     <script src="/assets/js/application.js"></script>
     <script type="text/javascript">
-      // <![CDATA[
-      jQuery(document).ready(function() {
-        $('.nav-list li').click(function() {
-          $('.nav-list li').removeClass('active');
-          $(this).addClass('active');
-        });
-        var hrefHash = window.location.hash.split('=')[1];
-        $('#yj-a-' + hrefHash + ' a').click();
+      $(function() {
+      $('table').addClass("table table-striped table-condensed");
       });
-      // ]]> 
     </script>
   </body>
 </html>

@@ -75,7 +75,8 @@ object Register2Snippet extends me.yangbajing.log.Loggable {
 
   private def jscmd(idFix: String, state: String, msg: String) = {
     JsCmds.Run("$('#group_%s').removeClass('success warning error');" format idFix) &
-      JsCmds.Run("$('#group_%s').addClass('%s');" format (idFix, state))
+      JsCmds.Run("$('#group_%s').addClass('%s');" format (idFix, state)) &
+      JqSetHtml("group_%s .help-inline" format idFix, Text(msg))
   }
 
   import net.liftweb.json.JsonDSL._

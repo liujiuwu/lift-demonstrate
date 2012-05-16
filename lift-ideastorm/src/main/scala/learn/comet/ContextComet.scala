@@ -16,7 +16,7 @@ import learn.service._
 import SessionManager.theAccountId
 import learn.model.Account
 
-class ContextComet extends CometActor with me.yangbajing.log.Loggable { contextComet =>
+class ContextComet extends CometActor with me.yangbajing.log.Loggable { self =>
 
   override def render = {
     "#%s *".format(MSG) #> "0" &
@@ -27,14 +27,14 @@ class ContextComet extends CometActor with me.yangbajing.log.Loggable { contextC
   }
 
   private def reflushContext {
-    ContextSystem.s.context ! RefreshOnlineStatus
+    ContextSystem.s.context ! RefreshOnlineStatus(self :: Nil)
   }
 
   override def lowPriority = {
     case OnlineStatus(onlineAccountIds) if theAccountId.isDefined =>
       // TODO 测试用，需替换 
       for (accountId <- theAccountId if !onlineAccountIds.contains(accountId)) {
-        ContextSystem.s.context ! CometStatus(contextComet, Full(accountId))
+        ContextSystem.s.context ! CometStatus(self, Full(accountId))
       }
 
       partialUpdate(SetHtml(MSG, Text(onlineAccountIds.size.toString)))
@@ -44,12 +44,12 @@ class ContextComet extends CometActor with me.yangbajing.log.Loggable { contextC
 
   override def localSetup {
     logger.debug("\n\nContextComet setup %s\n" format this)
-    ContextSystem.s.context ! SubscribeOnlineStatus(contextComet, theAccountId.is)
+    ContextSystem.s.context ! SubscribeOnlineStatus(self, theAccountId.is)
   }
 
   override def localShutdown {
     logger.debug("\n\nContextComet shutdown %s\n" format this)
-    ContextSystem.s.context ! UnsubscribeOnlineStatus(contextComet, theAccountId.is)
+    ContextSystem.s.context ! UnsubscribeOnlineStatus(self, theAccountId.is)
   }
 
   private def summary(account: Account): NodeSeq = {

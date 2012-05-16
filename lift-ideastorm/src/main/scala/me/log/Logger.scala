@@ -3,7 +3,7 @@ package log
 
 import java.util.Date
 
-import me.yangbajing.util.Utils
+import me.yangbajing.util.Utils._
 
 case class Log(
   val l: Level, // 日志级别
@@ -15,9 +15,10 @@ case class Log(
   val d: Date = new Date) {
 
   override def toString = {
-    "%s level:[%s] class:[%s] thread:[%s], except:[%s], key:[%s], msg:\n%s" format (Utils.dateIso.format(d), l, c, t, e, k, m)
+    "%s level:[%s] class:[%s] thread:[%s], except:[%s], key:[%s], msg:\n%s" format (d.timeMillis, l, c, t, e, k, m)
   }
 
+  // 方便casbah 的Map -> MongoDbObject 隐式转换
   def toMap: Map[String, AnyRef] = {
     val map = scala.collection.mutable.Map[String, AnyRef]("l" -> l.toString, "c" -> c, "t" -> t, "m" -> m, "d" -> d)
     e.foreach(map.put("e", _))

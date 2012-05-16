@@ -9,7 +9,7 @@ private[log] class StdioActor extends Actor {
 
   def receive = {
     case log: Log if out ne null =>
-      out.println(log)
+      out.println("[%s] %s" format (self, log))
 
     case LoggerStop =>
       context stop self

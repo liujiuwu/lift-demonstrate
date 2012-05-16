@@ -11,8 +11,12 @@ import me.yangbajing._
 object Utils extends TryUsingResources with Implicitly {
   val emailer = java.util.regex.Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*")
 
-  val dateIsoWeak = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E")
-  val dateIso = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+  lazy val formaterDateWeak = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E")
+  lazy val formaterDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+  lazy val formaterDateMillis = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+
+  lazy val formaterTime = new SimpleDateFormat("HH:mm:ss")
+  lazy val formaterTimeMillis = new SimpleDateFormat("HH:mm:ss.SSS")
 
   def emailValidate(email: String): Boolean = {
     emailer.matcher(email).matches
@@ -29,6 +33,8 @@ sealed trait Implicitly {
   implicit def tuple3ToXYZ[X, Y, Z](tuple3: Tuple3[X, Y, Z]) = XYZ(tuple3._1, tuple3._2, tuple3._3)
 
   implicit def tuple2RichApi[K, V](tuple2: Tuple2[K, V]) = new Tuple2RichApi(tuple2)
+
+  implicit def date2StringRichApi(date: Date) = new Date2StringRichApi(date)
 }
 
 sealed class Tuple2RichApi[K, V](tuple2: Tuple2[K, V]) {
@@ -36,8 +42,16 @@ sealed class Tuple2RichApi[K, V](tuple2: Tuple2[K, V]) {
   def v = tuple2._2
 }
 
-sealed class Date2String(date: Date) {
-  def toISOWeak = Utils.dateIsoWeak.format(date)
+sealed class Date2StringRichApi(date: Date) {
+  def toIsoWeak: String = Utils.formaterDateWeak.format(date)
+
+  def toIsoMillis: String = Utils.formaterDateMillis.format(date)
+
+  def toIso: String = Utils.formaterDate.format(date)
+
+  def time: String = Utils.formaterTime.format(date)
+
+  def timeMillis: String = Utils.formaterTimeMillis.format(date)
 }
 
 sealed class ByteArray2String(data: Array[Byte]) {

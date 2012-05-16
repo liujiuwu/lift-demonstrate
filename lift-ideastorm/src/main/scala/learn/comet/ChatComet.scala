@@ -18,7 +18,8 @@ import learn.model.Account
 /**
  * SiteMap中已进行了Session判断，这里当可安全的open_! theAccount
  */
-class ChatComet extends CometActor { liftComet =>
+class ChatComet extends CometActor { self =>
+
   private val accountId = theAccountId.is.open_!
   private object reqMsg extends RequestVar[String]("")
 
@@ -30,7 +31,7 @@ class ChatComet extends CometActor { liftComet =>
         SHtml.textarea("", reqMsg(_)) ++
           <button>发送</button> ++
           SHtml.hidden(() => if (reqMsg.is != "") {
-            val c = MessageLine(liftComet, accountId, account.id, Text(reqMsg.is), timeNow)
+            val c = MessageLine(self, accountId, account.id, Text(reqMsg.is), timeNow)
             IMSystem.main ! c
             // appendHtml(c)
             Noop
