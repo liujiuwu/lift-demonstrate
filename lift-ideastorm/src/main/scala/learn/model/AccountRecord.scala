@@ -20,7 +20,9 @@ class AccountRecord private () extends MongoRecord[AccountRecord]
 
   object username extends StringField(this, "")
   object email extends EmailField(this, 64)
+  object usertype extends IntField(this, -1) // -1 代码当前账户未启用
   object password extends MongoPasswordField(this)
+
   object token extends StringField(this, "")
 
   object age extends IntField(this)

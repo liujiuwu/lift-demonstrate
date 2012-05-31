@@ -67,7 +67,7 @@ object Account extends me.yangbajing.log.Loggable {
 import org.apache.commons.codec.digest.DigestUtils
 import org.bson.types.ObjectId
 
-case class Account(id: String, email: String, username: String, age: Int, unreadInfomationIds: List[String])
+case class Account(id: String, email: String, username: String, usertype: Int, age: Int, unreadInfomationIds: List[String])
 
 class AccountImpl(record: AccountRecord, var remember: Boolean = false) {
   def httpCookie: HTTPCookie = {
@@ -93,8 +93,10 @@ class AccountImpl(record: AccountRecord, var remember: Boolean = false) {
   }
 
   def immutable = {
-    Account(id, email, username, age, unreadInfomationIds)
+    Account(id, email, username, usertype, age, unreadInfomationIds)
   }
+
+  def usertype: Int = record.usertype.is
 
   def unreadInfomationIds: List[String] = record.unreadInfomationIds.is.list
   def setUnreadInfomationIds(list: List[String]) = {

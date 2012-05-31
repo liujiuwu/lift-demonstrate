@@ -7,7 +7,6 @@ import net.liftweb.http.{ SHtml, SessionVar, RequestVar, S }
 import net.liftweb.http.provider.HTTPCookie
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.JsCmds
-import JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds._
 
 import learn.model.AccountRecord
