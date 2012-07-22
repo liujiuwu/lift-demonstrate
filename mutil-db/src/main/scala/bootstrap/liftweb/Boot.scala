@@ -9,12 +9,24 @@ class Boot {
 
     LiftRules.htmlProperties.default.set((r: Req) => new XHtmlInHtml5OutProperties(r.userAgent))
 
-    MongoDB.defineDb(DefaultMongoIdentifier, MongoAddress(MongoHost("localhost", 27017), "xxxxx"))
+    MongoDB.defineDb(IdentifierFactory("xxxxx"), MongoAddress(MongoHost("localhost", 27017), "xxxxx"))
 
-    MongoDB.defineDb(NNNNNMongoIdentifier, MongoAddress(MongoHost("localhost", 27017), "nnnnn"))
+    MongoDB.defineDb(IdentifierFactory("nnnnn"), MongoAddress(MongoHost("localhost", 27017), "nnnnn"))
   }
 }
 
-object NNNNNMongoIdentifier extends MongoIdentifier {
-  def jndiName = "nnnnn"
+object IdentifierFactory {
+  def apply(name: String) = is(name)
+
+  private var is =
+    Map("nnnnn" -> new MongoIdentifier { def jndiName = "nnnnn" },
+      "xxxxx" -> new MongoIdentifier { def jndiName = "xxxxx" })
+
+  def put(identifier: TraversableOnce[(String, MongoIdentifier)]) {
+    is ++= identifier
+  }
+
+  def put(identifier: (String, MongoIdentifier)*) {
+    is ++= identifier
+  }
 }

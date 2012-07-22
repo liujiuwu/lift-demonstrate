@@ -5,23 +5,27 @@ import net.liftweb.mongodb.record._
 import net.liftweb.mongodb.record.field._
 import net.liftweb.mongodb._
 
+import bootstrap.liftweb.IdentifierFactory
+
 object MTestRecord {
-  def apply() = new MTestRecord(DefaultMongoIdentifier)
+  def apply(name: String) = instances(name).Record
 
-  def apply(identifier: MongoIdentifier) = new MTestRecord(identifier)
+  var instances =
+    Map("xxxxx" -> new MTestRecordWrapper(IdentifierFactory("xxxxx")),
+      "nnnnn" -> new MTestRecordWrapper(IdentifierFactory("nnnnn")))
 }
 
-class MTestRecord(identifier: MongoIdentifier)
-  extends MongoRecord[MTestRecord]
-  with MongoId[MTestRecord]
-  with MongoMetaRecord[MTestRecord] {
-  
-  def meta = this
+class MTestRecordWrapper(_identifier: MongoIdentifier) {
+  object Record extends Record with MongoMetaRecord[Record] {
+    override val collectionName = "m_test"
+    override def mongoIdentifier = _identifier
+    override def instantiateRecord = new Record
+  }
 
-  override val collectionName = "m_test"
-  override def mongoIdentifier = identifier
+  class Record extends MongoRecord[Record] with MongoId[Record] {
+    def meta = Record
 
-  object createdAt extends DateTimeField(this) // 创建时间
-  object updatedAt extends DateTimeField(this) // 最后更新时间
+    object createdAt extends DateTimeField(this) // 创建时间
+    object updatedAt extends DateTimeField(this) // 最后更新时间
+  }
 }
-
