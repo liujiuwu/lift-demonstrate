@@ -9,11 +9,10 @@ Lift record-mongodb 动态连接多个数据库！
 Test
 ------
 
-git clone git://github.com/yangbajing/lift-demonstrate.git
-cd lift-demonstrate/mutil-db
-./sbt
-> test:compile
-> test-only learn.model.RecordTest
+    git clone git://github.com/yangbajing/lift-demonstrate.git
+    cd lift-demonstrate/mutil-db
+    ./sbt
+    > test:compile
+    > test-only learn.model.RecordTest
 
-
-测试前记得先启动MongoDB！
+**测试前记得先启动MongoDB！**
