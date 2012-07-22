@@ -1,4 +1,4 @@
-name := "blank"
+name := "mutil-db"
 
 scalaVersion := "2.9.1"
 
@@ -27,6 +27,7 @@ port in container.Configuration := 8087
 libraryDependencies ++= {
   val liftVersion = "2.4"
   Seq(
+    "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile->default",
     "net.liftweb" %% "lift-webkit" % liftVersion % "compile->default")
 }
 
