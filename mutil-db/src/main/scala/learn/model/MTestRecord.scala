@@ -17,7 +17,7 @@ object MTestRecord {
 
 class MTestRecordWrapper(_identifier: MongoIdentifier) {
   object Record extends Record with MongoMetaRecord[Record] {
-    override val collectionName = "m_test"
+    override def collectionName = "m_test"
     override def mongoIdentifier = _identifier
     override def instantiateRecord = new Record
   }
