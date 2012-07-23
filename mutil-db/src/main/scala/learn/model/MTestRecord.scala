@@ -27,5 +27,14 @@ class MTestRecordWrapper(_identifier: MongoIdentifier) {
 
     object createdAt extends DateTimeField(this) // 创建时间
     object updatedAt extends DateTimeField(this) // 最后更新时间
+
+// TODO 取消metadata注释，运行时错误！
+/*
+    object metadata extends JsonObjectField[Record, JsonDataMetadata](this, JsonDataMetadata) {
+      def defaultValue = JsonDataMetadata("default")
+    }
+*/
+
+    object templates extends TextareaField(this, 65535)
   }
 }
